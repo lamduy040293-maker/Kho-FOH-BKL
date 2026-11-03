@@ -220,8 +220,7 @@
     </nav>
 
     <script>
-        // Link Apps Script Web App chuẩn mới nhất của Ken
-        const API_URL = "https://script.google.com/macros/s/AKfycbzuR0-fRi5OTOY1ZYAj2mekn9Rjsy4OZGO5mNBOj7iGChHKYsH4w217FeYfB-vIbko5/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzefYON8JURwWjD9KpK1pEzj560BKFxpL9KS92aKJucFa82YGWxwe2_ORxWNVI4B0Bo/exec";
 
         let defaultItems = {
           "Tiger Bạc 250ml": { "unit": "Lon", "cat": "Beer", "initTong": 960, "initBan": 758, "minStock": 240 },
@@ -278,7 +277,6 @@
 
         document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
 
-        // Xử lý phản hồi JSONP từ Cloud
         window.handleCloudResponse = function(data) {
             if (data && data.items && Object.keys(data.items).length > 0) {
                 items = data.items;
@@ -293,7 +291,6 @@
             isFetching = false;
         };
 
-        // Tải dữ liệu qua JSONP chống CORS
         function fetchCloudData() {
             if (isFetching) return;
             isFetching = true;
@@ -315,7 +312,6 @@
             document.body.appendChild(script);
         }
 
-        // Lưu dữ liệu lên Cloud qua JSONP
         function saveToCloud() {
             const statusEl = document.getElementById('syncStatus');
             statusEl.innerText = "⏳ Đang lưu dữ liệu...";
