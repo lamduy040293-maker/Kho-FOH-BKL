@@ -220,8 +220,8 @@
     </nav>
 
     <script>
-        // Link Apps Script Web App mới nhất chuẩn xác của Ken
-        const API_URL = "https://script.google.com/macros/s/AKfycbz7kq84MF4nJ4S00846xmWM4Z_puJL9xKq9tsvWYhFWl1ZZsUENfzbW-uOUX_w7jcCI/exec";
+        // Link Apps Script Web App chuẩn mới nhất của Ken
+        const API_URL = "https://script.google.com/macros/s/AKfycbzuR0-fRi5OTOY1ZYAj2mekn9Rjsy4OZGO5mNBOj7iGChHKYsH4w217FeYfB-vIbko5/exec";
 
         let defaultItems = {
           "Tiger Bạc 250ml": { "unit": "Lon", "cat": "Beer", "initTong": 960, "initBan": 758, "minStock": 240 },
@@ -278,57 +278,58 @@
 
         document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
 
-        // Tải dữ liệu chống cache từ Cloud
+        // Xử lý phản hồi JSONP từ Cloud
+        window.handleCloudResponse = function(data) {
+            if (data && data.items && Object.keys(data.items).length > 0) {
+                items = data.items;
+                transactions = data.transactions || [];
+            } else {
+                items = defaultItems;
+            }
+            renderStock();
+            const statusEl = document.getElementById('syncStatus');
+            statusEl.innerText = "🟢 Đồng bộ Online (Realtime)";
+            statusEl.className = "text-xs text-emerald-400 font-semibold";
+            isFetching = false;
+        };
+
+        // Tải dữ liệu qua JSONP chống CORS
         function fetchCloudData() {
             if (isFetching) return;
             isFetching = true;
             const statusEl = document.getElementById('syncStatus');
+            statusEl.innerText = "⏳ Đang đồng bộ...";
 
-            fetch(API_URL + "?t=" + new Date().getTime())
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.items && Object.keys(data.items).length > 0) {
-                        items = data.items;
-                        transactions = data.transactions || [];
-                    } else {
-                        items = defaultItems;
-                    }
-                    renderStock();
-                    statusEl.innerText = "🟢 Đồng bộ Online (Realtime)";
-                    statusEl.className = "text-xs text-emerald-400 font-semibold";
-                })
-                .catch(err => {
-                    console.error("Lỗi tải Cloud:", err);
-                    renderStock();
-                    statusEl.innerText = "🔴 Lỗi kết nối Cloud";
-                    statusEl.className = "text-xs text-rose-400 font-semibold";
-                })
-                .finally(() => {
-                    isFetching = false;
-                });
+            let oldScript = document.getElementById('jsonpScript');
+            if (oldScript) oldScript.remove();
+
+            let script = document.createElement('script');
+            script.id = 'jsonpScript';
+            script.src = API_URL + "?callback=handleCloudResponse&t=" + new Date().getTime();
+            script.onerror = function() {
+                isFetching = false;
+                renderStock();
+                statusEl.innerText = "🔴 Lỗi kết nối Cloud";
+                statusEl.className = "text-xs text-rose-400 font-semibold";
+            };
+            document.body.appendChild(script);
         }
 
-        // Lưu dữ liệu lên Cloud
+        // Lưu dữ liệu lên Cloud qua JSONP
         function saveToCloud() {
             const statusEl = document.getElementById('syncStatus');
             statusEl.innerText = "⏳ Đang lưu dữ liệu...";
             statusEl.className = "text-xs text-amber-400 font-semibold";
 
-            fetch(API_URL, {
-                method: "POST",
-                body: JSON.stringify({ items: items, transactions: transactions })
-            })
-            .then(res => res.json())
-            .then(res => {
-                statusEl.innerText = "🟢 Đã đồng bộ thành công";
-                statusEl.className = "text-xs text-emerald-400 font-semibold";
-                fetchCloudData();
-            })
-            .catch(err => {
-                console.error("Lỗi lưu Cloud:", err);
-                statusEl.innerText = "🔴 Lỗi lưu Cloud";
-                statusEl.className = "text-xs text-rose-400 font-semibold";
-            });
+            let dataStr = encodeURIComponent(JSON.stringify({ items: items, transactions: transactions }));
+            
+            let oldScript = document.getElementById('jsonpSaveScript');
+            if (oldScript) oldScript.remove();
+
+            let script = document.createElement('script');
+            script.id = 'jsonpSaveScript';
+            script.src = API_URL + "?action=save&data=" + dataStr + "&callback=handleCloudResponse&t=" + new Date().getTime();
+            document.body.appendChild(script);
         }
 
         function switchTab(tabId) {
