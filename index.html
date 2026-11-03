@@ -2,623 +2,583 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kho FOH BKL - Quản Lý Kho Song Song</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kho FOH BKL - Online Database</title>
     <style>
-        .active-tab { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: bold; }
-        .active-nav { color: #2563eb; font-weight: bold; }
-        body { -webkit-tap-highlight-color: transparent; }
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #27ae60;
+            --accent-color: #2980b9;
+            --bg-color: #f4f6f7;
+            --border-color: #dcdde1;
+            --danger-color: #c0392b;
+            --warning-bg: #fadbd8;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 15px;
+            color: #333;
+        }
+        .container {
+            max-width: 1350px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .header-bar h2 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 20px;
+        }
+        .sync-status {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            color: #475569;
+            font-weight: bold;
+        }
+        .clock-box {
+            text-align: right;
+            font-size: 13px;
+            color: #555;
+        }
+        .clock-time {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        .nav-tabs {
+            display: flex;
+            gap: 5px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            background-color: #eef2f5;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #555;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            background: #f9fbfb;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            align-items: flex-end;
+        }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-weight: 600; margin-bottom: 4px; font-size: 12px; color: #444; }
+        input, select {
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 13px;
+            width: 100%;
+        }
+        .btn-action {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 9px 15px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            height: 37px;
+            transition: background 0.2s;
+        }
+        .btn-action:hover { background-color: #219653; }
+        .btn-danger { background-color: var(--danger-color); }
+        .btn-blue { background-color: var(--accent-color); }
+        .table-responsive { overflow-x: auto; margin-top: 10px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 650px;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 9px 10px;
+            text-align: center;
+        }
+        th { background-color: var(--primary-color); color: white; font-weight: 600; }
+        tr:nth-child(even) { background-color: #fcfcfc; }
+        .badge-tong { background-color: #e67e22; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        .badge-ban { background-color: var(--accent-color); color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        .badge-chuyen { background-color: #8e44ad; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        .alert-row { background-color: var(--warning-bg) !important; }
+        .warning-tag { color: var(--danger-color); font-weight: bold; font-size: 11px; display: block; margin-top: 2px; }
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .section-title { color: var(--primary-color); font-size: 16px; margin: 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans pb-20 md:pb-6">
+<body>
 
-    <!-- Header & Realtime Clock -->
-    <header class="bg-slate-900 text-white p-4 shadow-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
-                    <i class="fa-solid fa-boxes-stacked text-blue-400"></i> Kho FOH BKL
-                </h1>
-                <p class="text-xs text-slate-400">Hệ thống Quản lý Song song Kho Tổng & Kho Bán</p>
+<div class="container">
+    <div class="header-bar">
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <h2>Kho FOH BKL</h2>
+                <span id="syncStatus" class="sync-status">🟢 Đã đồng bộ Online</span>
             </div>
-            <div class="text-right">
-                <div id="clockTime" class="text-lg font-mono font-bold text-emerald-400">00:00:00</div>
-                <div id="clockDate" class="text-xs text-slate-400">01/01/2026</div>
+            <span style="font-size: 12px; color: #7f8c8d;">Hệ thống đồng bộ dữ liệu thời gian thực</span>
+        </div>
+        <div class="clock-box">
+            <div id="clockTime" class="clock-time">00:00:00</div>
+            <div id="clockDate">01/01/2026</div>
+        </div>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('tonkho')" id="tab-tonkho">Tồn Kho Song Song</button>
+        <button class="tab-btn" onclick="switchTab('giaodich')" id="tab-giaodich">Tạo Giao Dịch Kho</button>
+        <button class="tab-btn" onclick="switchTab('sanpham')" id="tab-sanpham">Quản Lý Mặt Hàng & Tồn Đầu</button>
+        <button class="tab-btn" onclick="switchTab('lichsu')" id="tab-lichsu">Lịch Sử Giao Dịch</button>
+        <button class="tab-btn" onclick="fetchCloudData()" id="tab-refresh" style="background-color: #f1c40f; color: #333;">🔄 Tải Lại Dữ Liệu</button>
+    </div>
+
+    <!-- TAB 1 -->
+    <div id="sec-tonkho">
+        <div class="filter-bar">
+            <h3 class="section-title">Báo Cáo Tồn Kho & Cảnh Báo Định Mức</h3>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label style="margin: 0;">Lọc nhóm:</label>
+                <select id="filterCategory" onchange="renderStock()" style="width: auto;">
+                    <option value="ALL">Tất cả nhóm</option>
+                </select>
             </div>
         </div>
-    </header>
-
-    <!-- Desktop Navigation -->
-    <nav class="bg-white border-b border-slate-200 hidden md:block">
-        <div class="max-w-6xl mx-auto flex space-x-8 px-4">
-            <button onclick="switchTab('tonkho')" id="dt-tab-tonkho" class="py-3 px-2 active-tab"><i class="fa-solid fa-chart-pie mr-1"></i> Tồn Kho</button>
-            <button onclick="switchTab('giaodich')" id="dt-tab-giaodich" class="py-3 px-2 text-slate-600 hover:text-blue-600"><i class="fa-solid fa-arrow-right-arrow-left mr-1"></i> Giao Dịch</button>
-            <button onclick="switchTab('sanpham')" id="dt-tab-sanpham" class="py-3 px-2 text-slate-600 hover:text-blue-600"><i class="fa-solid fa-list-check mr-1"></i> Quản Lý Mặt Hàng</button>
-            <button onclick="switchTab('lichsu')" id="dt-tab-lichsu" class="py-3 px-2 text-slate-600 hover:text-blue-600"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Lịch Sử</button>
-            <button onclick="switchTab('sauluu')" id="dt-tab-sauluu" class="py-3 px-2 text-slate-600 hover:text-blue-600"><i class="fa-solid fa-file-export mr-1"></i> Lưu & Phục Hồi</button>
+        <div class="table-responsive">
+            <table id="stockTable">
+                <thead>
+                    <tr>
+                        <th rowspan="2">STT</th>
+                        <th rowspan="2">Tên Hàng Hóa</th>
+                        <th rowspan="2">ĐVT</th>
+                        <th rowspan="2">Nhóm</th>
+                        <th rowspan="2">Mức Tối Thiểu</th>
+                        <th colspan="3" style="background-color: #d35400;">KHO TỔNG</th>
+                        <th colspan="3" style="background-color: #2980b9;">KHO BÁN</th>
+                    </tr>
+                    <tr>
+                        <th style="background-color: #e67e22;">Tồn Đầu</th>
+                        <th style="background-color: #e67e22;">Tổng Nhập</th>
+                        <th style="background-color: #e67e22;">Tồn Kho Tổng</th>
+                        <th style="background-color: #3498db;">Tồn Đầu</th>
+                        <th style="background-color: #3498db;">Tổng Nhận</th>
+                        <th style="background-color: #3498db;">Tồn Kho Bán</th>
+                    </tr>
+                </thead>
+                <tbody id="stockBody"></tbody>
+            </table>
         </div>
-    </nav>
+    </div>
 
-    <!-- Main Container -->
-    <main class="max-w-6xl mx-auto p-4">
-
-        <!-- TAB 1: TỒN KHO -->
-        <section id="sec-tonkho" class="space-y-4">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                <div class="flex items-center gap-2">
-                    <span class="text-sm font-semibold text-slate-600">Lọc theo nhóm:</span>
-                    <select id="filterCategory" onchange="renderStock()" class="border border-slate-300 rounded-lg p-2 text-sm bg-slate-50 focus:outline-blue-500">
-                        <option value="ALL">Tất cả nhóm</option>
-                    </select>
-                </div>
-                <div class="flex gap-2 text-xs">
-                    <span class="px-2 py-1 bg-emerald-100 text-emerald-800 font-semibold rounded">An Toàn</span>
-                    <span class="px-2 py-1 bg-amber-100 text-amber-800 font-semibold rounded">⚠️ Bán Thiếu</span>
-                    <span class="px-2 py-1 bg-rose-100 text-rose-800 font-semibold rounded">⚠️ Tổng Thiếu</span>
-                </div>
+    <!-- TAB 2 -->
+    <div id="sec-giaodich" style="display: none;">
+        <h3 class="section-title" style="margin-bottom: 15px;">Thực Hiện Giao Dịch Xuất / Nhập / Chuyển Kho</h3>
+        <form id="transForm" onsubmit="handleTransaction(event)" class="form-grid">
+            <div class="form-group">
+                <label>Ngày giao dịch:</label>
+                <input type="date" id="transDate" required>
             </div>
-            <div id="stockContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-        </section>
-
-        <!-- TAB 2: GIAO DỊCH -->
-        <section id="sec-giaodich" class="hidden space-y-4">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 max-w-2xl mx-auto">
-                <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-square-plus text-blue-600"></i> Tạo Giao Dịch Kho
-                </h2>
-                <form id="transForm" onsubmit="handleTransaction(event)" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">Thời Gian Giao Dịch</label>
-                            <input type="date" id="transDate" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">Loại Giao Dịch</label>
-                            <select id="transType" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50 font-semibold">
-                                <option value="nhap_tong">📥 Nhập Kho Tổng (Từ NCC)</option>
-                                <option value="chuyen_kho">🔄 Xuất Tổng ➔ Nhập Kho Bán</option>
-                                <option value="xuat_ban">📤 Xuất Kho Bán (Tiêu hao / Bán)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">Chọn Mặt Hàng</label>
-                            <select id="transItem" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50"></select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">Số Lượng Xuất/Nhập</label>
-                            <input type="number" id="transQty" min="1" value="1" required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Ghi Chú</label>
-                        <input type="text" id="transNote" placeholder="Diễn giải thêm..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg shadow-md transition-all">
-                        Thực Hiện Giao Dịch
-                    </button>
-                </form>
+            <div class="form-group">
+                <label>Loại giao dịch:</label>
+                <select id="transType">
+                    <option value="nhap_tong">Nhập Kho Tổng (Từ NCC)</option>
+                    <option value="chuyen_kho">Xuất Tổng ➔ Nhập Kho Bán</option>
+                    <option value="xuat_ban">Xuất Kho Bán (Bán/Tiêu hao)</option>
+                </select>
             </div>
-        </section>
-
-        <!-- TAB 3: QUẢN LÝ MẶT HÀNG -->
-        <section id="sec-sanpham" class="hidden space-y-4">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-boxes-packing text-blue-600"></i> Thêm / Cập Nhật Mặt Hàng & Tồn Đầu Kỳ
-                </h2>
-                <form id="itemForm" onsubmit="handleSaveItem(event)" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
-                    <input type="hidden" id="editItemKey" value="">
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Tên Mặt Hàng</label>
-                        <input type="text" id="itemName" required placeholder="Thịt bò, Than..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Đơn Vị Tính</label>
-                        <input type="text" id="itemUnit" required placeholder="Kg, Thùng..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Nhóm Hàng</label>
-                        <input type="text" id="itemCat" required placeholder="Thịt, Than..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Tồn Đầu KHO TỔNG</label>
-                        <input type="number" id="initStockTong" min="0" value="0" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-orange-50">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Tồn Đầu KHO BÁN</label>
-                        <input type="number" id="initStockBan" min="0" value="0" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-blue-50">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Tồn Tối Thiểu (Cảnh báo)</label>
-                        <input type="number" id="itemMinStock" min="0" value="5" required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                    </div>
-                    <div class="md:col-span-4 flex gap-2">
-                        <button type="submit" id="btnSaveItem" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-sm transition-all">
-                            Thêm / Lưu Mặt Hàng
-                        </button>
-                        <button type="button" onclick="resetItemForm()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg text-sm">
-                            Hủy
-                        </button>
-                    </div>
-                </form>
+            <div class="form-group">
+                <label>Mặt hàng:</label>
+                <select id="transItem" required></select>
             </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
-                <h3 class="text-sm font-bold text-slate-700 mb-3">Danh Sách Mặt Hàng Kho FOH BKL</h3>
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="bg-slate-800 text-white">
-                            <th class="p-2 border">STT</th>
-                            <th class="p-2 border">Mặt Hàng</th>
-                            <th class="p-2 border">ĐVT</th>
-                            <th class="p-2 border">Nhóm</th>
-                            <th class="p-2 border bg-orange-900">Tồn Đầu Tổng</th>
-                            <th class="p-2 border bg-blue-900">Tồn Đầu Bán</th>
-                            <th class="p-2 border">Min Stock</th>
-                            <th class="p-2 border text-center">Thao Tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="itemListBody"></tbody>
-                </table>
+            <div class="form-group">
+                <label>Số lượng:</label>
+                <input type="number" id="transQty" min="1" value="1" required>
             </div>
-        </section>
-
-        <!-- TAB 4: LỊCH SỬ GIAO DỊCH -->
-        <section id="sec-lichsu" class="hidden space-y-4">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between gap-3">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-slate-600">Lọc theo tháng:</span>
-                    <input type="month" id="filterMonth" onchange="renderHistory()" class="border border-slate-300 rounded-lg p-1.5 text-xs bg-slate-50">
-                </div>
-                <button onclick="clearHistory()" class="text-xs bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg hover:bg-rose-100 font-semibold">
-                    <i class="fa-solid fa-trash-can mr-1"></i> Xóa Lịch Sử
-                </button>
+            <div class="form-group">
+                <label>Ghi chú:</label>
+                <input type="text" id="transNote" placeholder="Diễn giải thêm...">
             </div>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="bg-slate-800 text-white">
-                            <th class="p-2.5 border">Ngày GD</th>
-                            <th class="p-2.5 border">Loại</th>
-                            <th class="p-2.5 border">Tên Mặt Hàng</th>
-                            <th class="p-2.5 border">Số Lượng</th>
-                            <th class="p-2.5 border">Ghi Chú</th>
-                            <th class="p-2.5 border">Thời Gian Ghi Nhận</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyBody"></tbody>
-                </table>
+            <button type="submit" class="btn-action">Thực Hiện Giao Dịch</button>
+        </form>
+    </div>
+
+    <!-- TAB 3 -->
+    <div id="sec-sanpham" style="display: none;">
+        <h3 class="section-title" style="margin-bottom: 15px;">Thêm Mới / Cập Nhật Mặt Hàng</h3>
+        <form id="itemForm" onsubmit="handleSaveItem(event)" class="form-grid">
+            <div class="form-group">
+                <label>Tên hàng hóa:</label>
+                <input type="text" id="itemName" placeholder="Thịt bò, Than..." required>
             </div>
-        </section>
-
-        <!-- TAB 5: LƯU & PHỤC HỒI -->
-        <section id="sec-sauluu" class="hidden space-y-4">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-lg mx-auto text-center space-y-4">
-                <i class="fa-solid fa-file-shield text-5xl text-blue-600"></i>
-                <h2 class="text-lg font-bold text-slate-800">Lưu Trữ & Phục Hồi Dữ Liệu</h2>
-                <p class="text-xs text-slate-500">Xuất file JSON sao lưu hoặc cập nhật trực tiếp.</p>
-                <div class="flex flex-col gap-3">
-                    <button onclick="saveSelfContainedHTML()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-lg shadow text-sm">
-                        <i class="fa-solid fa-file-code mr-2"></i> Lưu Trực Tiếp Vào File HTML (Cập Nhật State)
-                    </button>
-                    <button onclick="exportJSON()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg shadow text-sm">
-                        <i class="fa-solid fa-download mr-2"></i> Lưu File Dữ Liệu (Xuất JSON)
-                    </button>
-                    <label class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-lg shadow text-sm cursor-pointer block">
-                        <i class="fa-solid fa-upload mr-2"></i> Tải File Lên (Nhập JSON)
-                        <input type="file" id="importFile" accept=".json" onchange="importJSON(event)" class="hidden">
-                    </label>
-                </div>
+            <div class="form-group">
+                <label>Đơn vị tính:</label>
+                <input type="text" id="itemUnit" placeholder="Kg, Thùng..." required>
             </div>
-        </section>
+            <div class="form-group">
+                <label>Nhóm hàng:</label>
+                <input type="text" id="itemCat" placeholder="Thịt, Vật tư..." required>
+            </div>
+            <div class="form-group">
+                <label>Tồn đầu KHO TỔNG:</label>
+                <input type="number" id="initStockTong" min="0" value="0" required style="background-color: #fef5e7;">
+            </div>
+            <div class="form-group">
+                <label>Tồn đầu KHO BÁN:</label>
+                <input type="number" id="initStockBan" min="0" value="0" required style="background-color: #ebf5fb;">
+            </div>
+            <div class="form-group">
+                <label>Tồn tối thiểu (Cảnh báo):</label>
+                <input type="number" id="itemMinStock" min="0" value="5" required>
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <button type="submit" id="btnSaveItem" class="btn-action" style="flex: 1;">Lưu Mặt Hàng</button>
+                <button type="button" onclick="resetItemForm()" class="btn-action" style="background-color: #95a5a6;">Hủy</button>
+            </div>
+        </form>
 
-    </main>
-
-    <!-- Mobile Bottom Navigation -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 flex justify-around py-2 shadow-lg text-slate-500">
-        <button onclick="switchTab('tonkho')" id="mb-tab-tonkho" class="flex flex-col items-center active-nav text-xs">
-            <i class="fa-solid fa-chart-pie text-lg"></i>
-            <span class="text-[10px]">Tồn Kho</span>
-        </button>
-        <button onclick="switchTab('giaodich')" id="mb-tab-giaodich" class="flex flex-col items-center text-xs">
-            <i class="fa-solid fa-arrow-right-arrow-left text-lg"></i>
-            <span class="text-[10px]">Giao Dịch</span>
-        </button>
-        <button onclick="switchTab('sanpham')" id="mb-tab-sanpham" class="flex flex-col items-center text-xs">
-            <i class="fa-solid fa-list-check text-lg"></i>
-            <span class="text-[10px]">Mặt Hàng</span>
-        </button>
-        <button onclick="switchTab('lichsu')" id="mb-tab-lichsu" class="flex flex-col items-center text-xs">
-            <i class="fa-solid fa-clock-rotate-left text-lg"></i>
-            <span class="text-[10px]">Lịch Sử</span>
-        </button>
-        <button onclick="switchTab('sauluu')" id="mb-tab-sauluu" class="flex flex-col items-center text-xs">
-            <i class="fa-solid fa-file-export text-lg"></i>
-            <span class="text-[10px]">Lưu File</span>
-        </button>
-    </nav>
-
-    <script>
-        // Data Structures
-        let items = JSON.parse(localStorage.getItem('bkl_items')) || {
-          "Tiger Bạc 250ml": { "unit": "Lon", "cat": "Beer", "initTong": 960, "initBan": 758, "minStock": 240 },
-          "Ken Bạc 250ml": { "unit": "Lon", "cat": "Beer", "initTong": 672, "initBan": 616, "minStock": 480 },
-          "Tiger Nâu 330ml": { "unit": "Lon", "cat": "Beer", "initTong": 336, "initBan": 273, "minStock": 240 },
-          "Tiger Bạc 330ml": { "unit": "Lon", "cat": "Beer", "initTong": 0, "initBan": 639, "minStock": 120 },
-          "Sài Gòn Xanh 330ml": { "unit": "Lon", "cat": "Beer", "initTong": 0, "initBan": 91, "minStock": 240 },
-          "Sting Đỏ": { "unit": "Lon", "cat": "Nước ngọt", "initTong": 560, "initBan": 1119, "minStock": 240 },
-          "Sprite": { "unit": "Lon", "cat": "Nước ngọt", "initTong": 1392, "initBan": 649, "minStock": 240 },
-          "Coca - Cola": { "unit": "Lon", "cat": "Nước ngọt", "initTong": 1896, "initBan": 511, "minStock": 240 },
-          "Suối Dasani": { "unit": "Lon", "cat": "Nước ngọt", "initTong": 0, "initBan": 1074, "minStock": 360 },
-          "Rượu cần 4lít": { "unit": "Bình", "cat": "Rượu", "initTong": 0, "initBan": 14, "minStock": 10 },
-          "Rượu Táo Mèo": { "unit": "Lít", "cat": "Rượu", "initTong": 300, "initBan": 150, "minStock": 200 },
-          "Rượu Mơ": { "unit": "Lít", "cat": "Rượu", "initTong": 260, "initBan": 110, "minStock": 200 },
-          "Than hao - Nướng": { "unit": "Kg", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 },
-          "Cồn thạch": { "unit": "Thùng", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
-          "Khăn ướt - Đoàn": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 1000 },
-          "Tấm setup đoàn - Đoàn": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 1000 },
-          "Bao đũa": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 1000 },
-          "Bao muỗng": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 1000 },
-          "Ống hút rượu cần": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 },
-          "Giấy ăn 100tờ/gói - 100gói/bịch": { "unit": "Gói", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 100 },
-          "Giấy chữ nhật": { "unit": "Gói", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 },
-          "Giấy lau tay": { "unit": "Gói", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 },
-          "Giấy vệ sinh cuộn": { "unit": "Cuộn", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 100 },
-          "Ly giấy 6oz - 50 cái/lốc": { "unit": "Lốc", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
-          "Giấy in bill": { "unit": "Cuộn", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 60 },
-          "Giấy vuông": { "unit": "Bịch", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
-          "Bao tay xé gà": { "unit": "Kg", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
-          "Bịch rác lớn - Đen": { "unit": "Kg", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 50 },
-          "Hộp mang về": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 50 },
-          "Tăm": { "unit": "Lóc", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 },
-          "Chai xịt phòng": { "unit": "Chai", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 5 },
-          "Nước lau kính": { "unit": "Chai", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 5 },
-          "Nước lau sàn": { "unit": "Can", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
-          "Nước rửa chén": { "unit": "Can", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
-          "Nước rửa tay": { "unit": "Can", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 5 },
-          "Atiso": { "unit": "Bịch", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 5 },
-          "Ống hút đen": { "unit": "Lóc", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 100 },
-          "Hộp giấy ăn": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 }
-        };
-
-        let transactions = JSON.parse(localStorage.getItem('bkl_transactions')) || [];
-
-        // Realtime Clock
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clockTime').innerText = now.toLocaleTimeString('vi-VN');
-            document.getElementById('clockDate').innerText = now.toLocaleDateString('vi-VN');
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
-
-        function switchTab(tabId) {
-            ['tonkho', 'giaodich', 'sanpham', 'lichsu', 'sauluu'].forEach(t => {
-                document.getElementById(`sec-${t}`).classList.add('hidden');
-                let dtBtn = document.getElementById(`dt-tab-${t}`);
-                if (dtBtn) dtBtn.className = "py-3 px-2 text-slate-600 hover:text-blue-600";
-                let mbBtn = document.getElementById(`mb-tab-${t}`);
-                if (mbBtn) mbBtn.className = "flex flex-col items-center text-xs text-slate-500";
-            });
-            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
-            let activeDt = document.getElementById(`dt-tab-${tabId}`);
-            if (activeDt) activeDt.className = "py-3 px-2 active-tab";
-            let activeMb = document.getElementById(`mb-tab-${tabId}`);
-            if (activeMb) activeMb.className = "flex flex-col items-center active-nav text-xs";
-
-            if (tabId === 'tonkho') renderStock();
-            if (tabId === 'giaodich') renderTransSelect();
-            if (tabId === 'sanpham') renderItemList();
-            if (tabId === 'lichsu') renderHistory();
-        }
-
-        function getStockData() {
-            let stockMap = {};
-            for (let name in items) {
-                stockMap[name] = {
-                    unit: items[name].unit,
-                    cat: items[name].cat,
-                    minStock: items[name].minStock,
-                    initTong: items[name].initTong || 0,
-                    initBan: items[name].initBan || 0,
-                    nhapTong: 0,
-                    chuyenKho: 0,
-                    nhanBan: 0,
-                    xuatBan: 0
-                };
-            }
-            transactions.forEach(tx => {
-                if (stockMap[tx.itemName]) {
-                    let qty = parseInt(tx.qty);
-                    if (tx.type === 'nhap_tong') stockMap[tx.itemName].nhapTong += qty;
-                    if (tx.type === 'chuyen_kho') {
-                        stockMap[tx.itemName].chuyenKho += qty;
-                        stockMap[tx.itemName].nhanBan += qty;
-                    }
-                    if (tx.type === 'xuat_ban') stockMap[tx.itemName].xuatBan += qty;
-                }
-            });
-            return stockMap;
-        }
-
-        function renderStock() {
-            const stockData = getStockData();
-            const container = document.getElementById('stockContainer');
-            const filterCat = document.getElementById('filterCategory').value;
-            container.innerHTML = '';
-
-            const catSet = new Set(Object.values(items).map(i => i.cat));
-            const selectCat = document.getElementById('filterCategory');
-            selectCat.innerHTML = '<option value="ALL">Tất cả nhóm</option>';
-            catSet.forEach(c => {
-                selectCat.innerHTML += `<option value="${c}" ${filterCat === c ? 'selected' : ''}>${c}</option>`;
-            });
-
-            for (let name in stockData) {
-                let item = stockData[name];
-                if (filterCat !== 'ALL' && item.cat !== filterCat) continue;
-
-                let tonTong = item.initTong + item.nhapTong - item.chuyenKho;
-                let tonBan = item.initBan + item.nhanBan - item.xuatBan;
-
-                let isTongLow = tonTong <= item.minStock;
-                let isBanLow = tonBan <= item.minStock;
-                let cardBg = "bg-white border-slate-200";
-                let badge = "";
-
-                if (isTongLow) {
-                    cardBg = "bg-rose-50/60 border-rose-200";
-                    badge += `<span class="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-bold">⚠️ Cần Nhập Tổng</span>`;
-                }
-                if (isBanLow) {
-                    if (!isTongLow) cardBg = "bg-amber-50/60 border-amber-200";
-                    badge += `<span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold">⚠️ Cần Bổ Sung Bán</span>`;
-                }
-
-                container.innerHTML += `
-                    <div class="${cardBg} border rounded-xl p-4 shadow-sm relative space-y-3">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">${item.cat}</span>
-                                <h3 class="font-bold text-base text-slate-800 mt-1">${name}</h3>
-                                <p class="text-xs text-slate-500">ĐVT: ${item.unit} | Mức tối thiểu: ${item.minStock}</p>
-                            </div>
-                            <div class="flex flex-col gap-1 items-end">${badge}</div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 text-center text-xs pt-2 border-t border-slate-100">
-                            <div class="bg-orange-50/80 p-2 rounded-lg border border-orange-100">
-                                <span class="text-[10px] font-bold text-orange-700 block">KHO TỔNG</span>
-                                <span class="text-lg font-bold ${isTongLow ? 'text-rose-600' : 'text-slate-800'}">${tonTong}</span>
-                                <div class="text-[9px] text-slate-400 mt-0.5">Đầu: ${item.initTong} | Nhập: ${item.nhapTong}</div>
-                            </div>
-                            <div class="bg-blue-50/80 p-2 rounded-lg border border-blue-100">
-                                <span class="text-[10px] font-bold text-blue-700 block">KHO BÁN</span>
-                                <span class="text-lg font-bold ${isBanLow ? 'text-amber-600' : 'text-slate-800'}">${tonBan}</span>
-                                <div class="text-[9px] text-slate-400 mt-0.5">Đầu: ${item.initBan} | Xuất: ${item.xuatBan}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        function renderTransSelect() {
-            const select = document.getElementById('transItem');
-            select.innerHTML = '';
-            for (let name in items) {
-                select.innerHTML += `<option value="${name}">${name} (${items[name].unit})</option>`;
-            }
-        }
-
-        // =========================================================================
-        // HÀM XỬ LÝ GIAO DỊCH (ĐÃ TÍCH HỢP FETCH ĐẨY VỀ GOOGLE SHEETS)
-        // =========================================================================
-        function handleTransaction(e) {
-            e.preventDefault();
-            const date = document.getElementById('transDate').value;
-            const type = document.getElementById('transType').value;
-            const itemName = document.getElementById('transItem').value;
-            const qty = parseInt(document.getElementById('transQty').value);
-            const note = document.getElementById('transNote').value;
-
-            const stockData = getStockData()[itemName];
-            let currentTong = stockData.initTong + stockData.nhapTong - stockData.chuyenKho;
-            let currentBan = stockData.initBan + stockData.nhanBan - stockData.xuatBan;
-
-            if (type === 'chuyen_kho' && qty > currentTong) {
-                alert(`Kho tổng không đủ hàng để chuyển! Tồn kho tổng hiện tại: ${currentTong}`);
-                return;
-            }
-
-            if (type === 'xuat_ban' && qty > currentBan) {
-                alert(`Kho bán không đủ hàng để xuất! Tồn kho bán hiện tại: ${currentBan}`);
-                return;
-            }
-
-            // URL Ứng dụng web Google Apps Script của bạn
-            const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxcSApW9f-uUIIEkgQpbMCSRy2Vnmv7MrvKcNaHp8W_9narhCgRXgROJnbcBpdMWI38wA/exec';
-
-            // Lệnh fetch đẩy dữ liệu thẳng về Google Sheets
-            fetch(URL_APPS_SCRIPT, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ date, type, itemName, qty, note })
-            }).catch(error => console.error('Lỗi đẩy dữ liệu Sheets:', error));
-
-            // Lưu lịch sử giao dịch vào LocalStorage
-            const recordTime = new Date().toLocaleString('vi-VN');
-            transactions.push({ date, type, itemName, qty, note, recordTime });
-            localStorage.setItem('bkl_transactions', JSON.stringify(transactions));
-
-            alert('Đã ghi nhận giao dịch thành công và đồng bộ trực tuyến!');
-            document.getElementById('transQty').value = '1';
-            document.getElementById('transNote').value = '';
-            switchTab('tonkho');
-        }
-
-        function handleSaveItem(e) {
-            e.preventDefault();
-            const name = document.getElementById('itemName').value.trim();
-            const unit = document.getElementById('itemUnit').value.trim();
-            const cat = document.getElementById('itemCat').value.trim();
-            const initTong = parseInt(document.getElementById('initStockTong').value) || 0;
-            const initBan = parseInt(document.getElementById('initStockBan').value) || 0;
-            const minStock = parseInt(document.getElementById('itemMinStock').value) || 0;
-
-            items[name] = { unit, cat, initTong, initBan, minStock };
-            localStorage.setItem('bkl_items', JSON.stringify(items));
-            resetItemForm();
-            renderItemList();
-            alert('Đã lưu thông tin mặt hàng!');
-        }
-
-        function editItem(name) {
-            const item = items[name];
-            document.getElementById('itemName').value = name;
-            document.getElementById('itemUnit').value = item.unit;
-            document.getElementById('itemCat').value = item.cat;
-            document.getElementById('initStockTong').value = item.initTong || 0;
-            document.getElementById('initStockBan').value = item.initBan || 0;
-            document.getElementById('itemMinStock').value = item.minStock;
-            document.getElementById('btnSaveItem').innerText = 'Cập Nhật Mặt Hàng';
-        }
-
-        function deleteItem(name) {
-            if (confirm(`Bạn có chắc chắn muốn xóa mặt hàng "${name}"?`)) {
-                delete items[name];
-                localStorage.setItem('bkl_items', JSON.stringify(items));
-                renderItemList();
-            }
-        }
-
-        function resetItemForm() {
-            document.getElementById('itemForm').reset();
-            document.getElementById('btnSaveItem').innerText = 'Thêm / Lưu Mặt Hàng';
-        }
-
-        function renderItemList() {
-            const body = document.getElementById('itemListBody');
-            body.innerHTML = '';
-            let stt = 1;
-            for (let name in items) {
-                let item = items[name];
-                body.innerHTML += `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="p-2 border">${stt++}</td>
-                        <td class="p-2 border font-bold">${name}</td>
-                        <td class="p-2 border">${item.unit}</td>
-                        <td class="p-2 border">${item.cat}</td>
-                        <td class="p-2 border bg-orange-50 font-bold text-orange-700">${item.initTong || 0}</td>
-                        <td class="p-2 border bg-blue-50 font-bold text-blue-700">${item.initBan || 0}</td>
-                        <td class="p-2 border">${item.minStock}</td>
-                        <td class="p-2 border text-center space-x-1">
-                            <button onclick="editItem('${name}')" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteItem('${name}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
-                        </td>
+        <h3 class="section-title" style="margin-top: 20px;">Danh Sách Mặt Hàng Đã Khai Báo</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên Mặt Hàng</th>
+                        <th>ĐVT</th>
+                        <th>Nhóm</th>
+                        <th style="background-color: #d35400;">Tồn Đầu Kho Tổng</th>
+                        <th style="background-color: #2980b9;">Tồn Đầu Kho Bán</th>
+                        <th>Mức Tối Thiểu</th>
+                        <th>Thao Tác</th>
                     </tr>
-                `;
-            }
-        }
+                </thead>
+                <tbody id="itemListBody"></tbody>
+            </table>
+        </div>
+    </div>
 
-        function renderHistory() {
-            const body = document.getElementById('historyBody');
-            const filterM = document.getElementById('filterMonth').value;
-            body.innerHTML = '';
-            let filtered = [...transactions].reverse();
-            if (filterM) {
-                filtered = filtered.filter(tx => tx.date.startsWith(filterM));
-            }
-            filtered.forEach(tx => {
-                let badge = '';
-                if (tx.type === 'nhap_tong') badge = '<span class="bg-orange-100 text-orange-800 text-[10px] px-2 py-0.5 rounded font-bold">Nhập Kho Tổng</span>';
-                if (tx.type === 'chuyen_kho') badge = '<span class="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded font-bold">Chuyển Tổng ➔ Bán</span>';
-                if (tx.type === 'xuat_ban') badge = '<span class="bg-blue-100 text-blue-800 text-[10px] px-2 py-0.5 rounded font-bold">Xuất Kho Bán</span>';
-
-                body.innerHTML += `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="p-2.5 border font-semibold">${tx.date}</td>
-                        <td class="p-2.5 border">${badge}</td>
-                        <td class="p-2.5 border font-bold">${tx.itemName}</td>
-                        <td class="p-2.5 border font-bold text-slate-800">${tx.qty}</td>
-                        <td class="p-2.5 border text-slate-500">${tx.note || '-'}</td>
-                        <td class="p-2.5 border text-slate-400 text-[10px]">${tx.recordTime}</td>
+    <!-- TAB 4 -->
+    <div id="sec-lichsu" style="display: none;">
+        <div class="filter-bar">
+            <h3 class="section-title">Lịch Sử Giao Dịch Phát Sinh</h3>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="margin: 0;">Lọc tháng:</label>
+                <input type="month" id="filterMonth" onchange="renderHistory()" style="width: auto;">
+                <button onclick="clearHistory()" class="btn-action btn-danger" style="height: 33px; padding: 0 10px; font-size: 12px;">Xóa Lịch Sử</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ngày GD</th>
+                        <th>Loại Giao Dịch</th>
+                        <th>Tên Mặt Hàng</th>
+                        <th>Số Lượng</th>
+                        <th>Ghi Chú</th>
+                        <th>Thời Gian Ghi Nhận</th>
                     </tr>
-                `;
+                </thead>
+                <tbody id="historyBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Đã cấu hình sẵn Web App URL của Google Sheets:
+    const API_URL = "https://script.google.com/macros/s/AKfycbwRA844NoJGsvI4rSZVLGEJv4f55uzGjfO5m9NZpJlnobdzBHu2u_ZA-NDjoOB2LBI/exec";
+
+    let items = {};
+    let transactions = [];
+
+    function updateStatus(msg, isSyncing = false) {
+        const el = document.getElementById('syncStatus');
+        el.innerText = msg;
+        el.style.background = isSyncing ? '#fef08a' : '#e2e8f0';
+        el.style.color = isSyncing ? '#854d0e' : '#475569';
+    }
+
+    function fetchCloudData() {
+        updateStatus("⏳ Đang tải dữ liệu...", true);
+        fetch(API_URL)
+            .then(res => res.json())
+            .then(data => {
+                items = data.items || {};
+                transactions = data.transactions || [];
+                renderStock();
+                updateStatus("🟢 Đã đồng bộ Online");
+            })
+            .catch(err => {
+                console.error(err);
+                updateStatus("🔴 Lỗi kết nối Cloud");
             });
-        }
+    }
 
-        function clearHistory() {
-            if (confirm('Xóa toàn bộ lịch sử giao dịch?')) {
-                transactions = [];
-                localStorage.setItem('bkl_transactions', JSON.stringify(transactions));
-                renderHistory();
-            }
-        }
+    function saveToCloud() {
+        updateStatus("⏳ Đang lưu dữ liệu...", true);
+        fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "saveAll", items: items, transactions: transactions })
+        })
+        .then(res => res.json())
+        .then(res => {
+            updateStatus("🟢 Đã đồng bộ thành công");
+        })
+        .catch(err => {
+            console.error(err);
+            updateStatus("🔴 Lỗi lưu Cloud");
+        });
+    }
 
-        function exportJSON() {
-            const backupData = { items, transactions };
-            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Kho_FOH_BKL_Backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-        }
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clockTime').innerText = now.toLocaleTimeString('vi-VN');
+        document.getElementById('clockDate').innerText = now.toLocaleDateString('vi-VN');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 
-        function importJSON(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const data = JSON.parse(evt.target.result);
-                    if (data.items && data.transactions) {
-                        items = data.items;
-                        transactions = data.transactions;
-                        localStorage.setItem('bkl_items', JSON.stringify(items));
-                        localStorage.setItem('bkl_transactions', JSON.stringify(transactions));
-                        alert('Đã phục hồi dữ liệu thành công!');
-                        switchTab('tonkho');
-                    } else {
-                        alert('File JSON không hợp lệ!');
-                    }
-                } catch (err) {
-                    alert('Lỗi khi đọc file JSON!');
-                }
+    document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
+
+    function switchTab(tabId) {
+        ['tonkho', 'giaodich', 'sanpham', 'lichsu'].forEach(t => {
+            document.getElementById(`sec-${t}`).style.display = 'none';
+            document.getElementById(`tab-${t}`).classList.remove('active');
+        });
+        document.getElementById(`sec-${tabId}`).style.display = 'block';
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+        if (tabId === 'tonkho') renderStock();
+        if (tabId === 'giaodich') renderTransSelect();
+        if (tabId === 'sanpham') renderItemList();
+        if (tabId === 'lichsu') renderHistory();
+    }
+
+    function getStockData() {
+        let stockMap = {};
+        for (let name in items) {
+            stockMap[name] = {
+                unit: items[name].unit, cat: items[name].cat, minStock: items[name].minStock,
+                initTong: items[name].initTong || 0, initBan: items[name].initBan || 0,
+                nhapTong: 0, chuyenKho: 0, nhanBan: 0, xuatBan: 0
             };
-            reader.readAsText(file);
         }
-
-        function saveSelfContainedHTML() {
-            try {
-                let htmlCode = document.documentElement.outerHTML;
-                const itemsRegex = /let items = JSON\.parse\(localStorage\.getItem\('bkl_items'\)\) \|\| \{[\s\S]*?\};/;
-                const newItemsStr = `let items = JSON.parse(localStorage.getItem('bkl_items')) || ${JSON.stringify(items, null, 2)};`;
-                const transRegex = /let transactions = JSON\.parse\(localStorage\.getItem\('bkl_transactions'\)\) \|\| \[\];/;
-                const newTransStr = `let transactions = JSON.parse(localStorage.getItem('bkl_transactions')) || ${JSON.stringify(transactions, null, 2)};`;
-
-                if (itemsRegex.test(htmlCode)) htmlCode = htmlCode.replace(itemsRegex, newItemsStr);
-                if (transRegex.test(htmlCode)) htmlCode = htmlCode.replace(transRegex, newTransStr);
-
-                const blob = new Blob([htmlCode], { type: 'text/html;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Kho_FOH_BKL_${new Date().toISOString().split('T')[0]}.html`;
-                a.click();
-                URL.revokeObjectURL(url);
-                alert('Đã lưu dữ liệu hiện tại trực tiếp vào file HTML thành công!');
-            } catch (err) {
-                alert('Lỗi khi lưu file HTML!');
+        transactions.forEach(tx => {
+            if (stockMap[tx.itemName]) {
+                let qty = parseInt(tx.qty);
+                if (tx.type === 'nhap_tong') stockMap[tx.itemName].nhapTong += qty;
+                if (tx.type === 'chuyen_kho') { stockMap[tx.itemName].chuyenKho += qty; stockMap[tx.itemName].nhanBan += qty; }
+                if (tx.type === 'xuat_ban') stockMap[tx.itemName].xuatBan += qty;
             }
-        }
+        });
+        return stockMap;
+    }
 
-        renderStock();
-    </script>
+    function renderStock() {
+        const stockData = getStockData();
+        const stockBody = document.getElementById('stockBody');
+        const filterCat = document.getElementById('filterCategory').value;
+        stockBody.innerHTML = '';
+        const catSet = new Set(Object.values(items).map(i => i.cat));
+        const selectCat = document.getElementById('filterCategory');
+        selectCat.innerHTML = '<option value="ALL">Tất cả nhóm</option>';
+        catSet.forEach(c => { selectCat.innerHTML += `<option value="${c}" ${filterCat === c ? 'selected' : ''}>${c}</option>`; });
+        let stt = 1;
+        for (let name in stockData) {
+            let item = stockData[name];
+            if (filterCat !== 'ALL' && item.cat !== filterCat) continue;
+            let tonTong = item.initTong + item.nhapTong - item.chuyenKho;
+            let tonBan = item.initBan + item.nhanBan - item.xuatBan;
+            let isTongLow = tonTong <= item.minStock;
+            let isBanLow = tonBan <= item.minStock;
+            let rowClass = (isTongLow || isBanLow) ? 'alert-row' : '';
+            let warningText = '';
+            if (isTongLow && isBanLow) warningText = '<span class="warning-tag">⚠️ Cả 2 kho dưới hạn mức!</span>';
+            else if (isTongLow) warningText = '<span class="warning-tag">⚠️ Kho tổng cần nhập!</span>';
+            else if (isBanLow) warningText = '<span class="warning-tag">⚠️ Kho bán cần bổ sung!</span>';
+
+            stockBody.innerHTML += `<tr class="${rowClass}">
+                <td>${stt++}</td>
+                <td style="text-align: left; font-weight: 600;">${name} ${warningText}</td>
+                <td>${item.unit}</td>
+                <td><span style="font-size: 11px; background: #eee; padding: 2px 5px; border-radius: 3px;">${item.cat}</span></td>
+                <td>${item.minStock}</td>
+                <td style="color: #7f8c8d;">${item.initTong}</td>
+                <td>${item.nhapTong}</td>
+                <td style="font-weight: bold; color: ${isTongLow ? 'red' : '#27ae60'};">${tonTong}</td>
+                <td style="color: #7f8c8d;">${item.initBan}</td>
+                <td>${item.nhanBan}</td>
+                <td style="font-weight: bold; color: ${isBanLow ? 'red' : '#2980b9'};">${tonBan}</td>
+            </tr>`;
+        }
+    }
+
+    function renderTransSelect() {
+        const select = document.getElementById('transItem');
+        select.innerHTML = '';
+        for (let name in items) select.innerHTML += `<option value="${name}">${name} (${items[name].unit}) - Nhóm: ${items[name].cat}</option>`;
+    }
+
+    function handleTransaction(e) {
+        e.preventDefault();
+        const date = document.getElementById('transDate').value;
+        const type = document.getElementById('transType').value;
+        const itemName = document.getElementById('transItem').value;
+        const qty = parseInt(document.getElementById('transQty').value);
+        const note = document.getElementById('transNote').value.trim();
+        const stockData = getStockData()[itemName];
+        let currentTong = stockData.initTong + stockData.nhapTong - stockData.chuyenKho;
+        let currentBan = stockData.initBan + stockData.nhanBan - stockData.xuatBan;
+
+        if (type === 'chuyen_kho' && qty > currentTong) { alert(`Kho tổng không đủ hàng! Tồn hiện tại: ${currentTong}`); return; }
+        if (type === 'xuat_ban' && qty > currentBan) { alert(`Kho bán không đủ hàng! Tồn hiện tại: ${currentBan}`); return; }
+
+        const recordTime = new Date().toLocaleString('vi-VN');
+        transactions.push({ date, type, itemName, qty, note, recordTime });
+        
+        saveToCloud();
+        alert('Giao dịch thành công và đã đồng bộ lên Google Sheets!');
+        document.getElementById('transQty').value = '1';
+        document.getElementById('transNote').value = '';
+        switchTab('tonkho');
+    }
+
+    function handleSaveItem(e) {
+        e.preventDefault();
+        const name = document.getElementById('itemName').value.trim();
+        const unit = document.getElementById('itemUnit').value.trim();
+        const cat = document.getElementById('itemCat').value.trim();
+        const initTong = parseInt(document.getElementById('initStockTong').value) || 0;
+        const initBan = parseInt(document.getElementById('initStockBan').value) || 0;
+        const minStock = parseInt(document.getElementById('itemMinStock').value) || 0;
+        
+        items[name] = { unit, cat, initTong, initBan, minStock };
+        saveToCloud();
+        resetItemForm();
+        renderItemList();
+        alert('Lưu mặt hàng thành công và đã đồng bộ!');
+    }
+
+    function editItem(name) {
+        const item = items[name];
+        document.getElementById('itemName').value = name;
+        document.getElementById('itemUnit').value = item.unit;
+        document.getElementById('itemCat').value = item.cat;
+        document.getElementById('initStockTong').value = item.initTong || 0;
+        document.getElementById('initStockBan').value = item.initBan || 0;
+        document.getElementById('itemMinStock').value = item.minStock;
+        document.getElementById('btnSaveItem').innerText = 'Cập Nhật Mặt Hàng';
+    }
+
+    function deleteItem(name) {
+        if (confirm(`Bạn có chắc chắn muốn xóa mặt hàng "${name}"?`)) {
+            delete items[name];
+            saveToCloud();
+            renderItemList();
+        }
+    }
+
+    function resetItemForm() {
+        document.getElementById('itemForm').reset();
+        document.getElementById('btnSaveItem').innerText = 'Lưu Mặt Hàng';
+    }
+
+    function renderItemList() {
+        const body = document.getElementById('itemListBody');
+        body.innerHTML = '';
+        let stt = 1;
+        for (let name in items) {
+            let item = items[name];
+            body.innerHTML += `<tr>
+                <td>${stt++}</td>
+                <td style="text-align: left; font-weight: bold;">${name}</td>
+                <td>${item.unit}</td>
+                <td>${item.cat}</td>
+                <td style="font-weight: bold; color: #d35400;">${item.initTong || 0}</td>
+                <td style="font-weight: bold; color: #2980b9;">${item.initBan || 0}</td>
+                <td>${item.minStock}</td>
+                <td>
+                    <button onclick="editItem('${name}')" style="background: none; border: none; color: #2980b9; cursor: pointer; font-weight: bold; margin-right: 8px;">Sửa</button>
+                    <button onclick="deleteItem('${name}')" style="background: none; border: none; color: #c0392b; cursor: pointer; font-weight: bold;">Xóa</button>
+                </td>
+            </tr>`;
+        }
+    }
+
+    function renderHistory() {
+        const body = document.getElementById('historyBody');
+        const filterM = document.getElementById('filterMonth').value;
+        body.innerHTML = '';
+        let filtered = [...transactions].reverse();
+        if (filterM) filtered = filtered.filter(tx => tx.date.startsWith(filterM));
+        filtered.forEach(tx => {
+            let typeLabel = '';
+            if (tx.type === 'nhap_tong') typeLabel = '<span class="badge-tong">Nhập Kho Tổng</span>';
+            else if (tx.type === 'chuyen_kho') typeLabel = '<span class="badge-chuyen">Xuất Tổng ➔ Nhập Bán</span>';
+            else if (tx.type === 'xuat_ban') typeLabel = '<span class="badge-ban">Xuất Kho Bán</span>';
+
+            body.innerHTML += `<tr>
+                <td>${tx.date}</td>
+                <td>${typeLabel}</td>
+                <td style="text-align: left; font-weight: bold;">${tx.itemName}</td>
+                <td style="font-weight: bold;">${tx.qty}</td>
+                <td style="text-align: left;">${tx.note || '-'}</td>
+                <td style="font-size: 11px; color: #7f8c8d;">${tx.recordTime}</td>
+            </tr>`;
+        });
+    }
+
+    function clearHistory() {
+        if (confirm('Xóa toàn bộ lịch sử giao dịch?')) {
+            transactions = [];
+            saveToCloud();
+            renderHistory();
+        }
+    }
+
+    // Tự động tải dữ liệu khi mở link GitHub
+    fetchCloudData();
+</script>
 </body>
 </html>
