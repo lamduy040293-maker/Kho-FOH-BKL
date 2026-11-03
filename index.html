@@ -1,531 +1,513 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kho FOH BKL - Quản Lý Kho Song Song</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .active-tab { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: bold; }
-        .active-nav { color: #2563eb; font-weight: bold; }
-        body { -webkit-tap-highlight-color: transparent; }
-    </style>
-</head>
-<body class="bg-slate-100 text-slate-800 font-sans pb-20 md:pb-6">
-
-    <!-- Header & Realtime Clock -->
-    <header class="bg-slate-900 text-white p-4 shadow-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
+<!-- Header & Realtime Clock -->
+<header class="bg-slate-900 text-white p-4 shadow-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
+                <i class="fa-solid fa-boxes-stacked text-blue-400"></i> Kho FOH BKL
+            </h1>
+            <p id="syncStatus" class="text-xs text-emerald-400 font-semibold">🟢 Đang kết nối Cloud...</p>
+        </div>
+        <div class="text-right flex items-center gap-3">
             <div>
-                <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
-                    <i class="fa-solid fa-boxes-stacked text-blue-400"></i> Kho FOH BKL
-                </h1>
-                <p id="syncStatus" class="text-xs text-emerald-400 font-semibold">🟢 Đang kết nối Cloud...</p>
+                <div id="clockTime" class="text-lg font-mono font-bold text-emerald-400">00:00:00</div>
+                <div id="clockDate" class="text-xs text-slate-400">01/01/2026</div>
             </div>
-            <div class="text-right flex items-center gap-3">
+            <button onclick="fetchCloudData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition-all" title="Tải lại dữ liệu mới nhất">
+                <i class="fa-solid fa-rotate"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Desktop Navigation -->
+<nav class="bg-white border-b border-slate-200 hidden md:block">
+    <div class="max-w-6xl mx-auto flex space-x-8 px-4">
+        <button onclick="switchTab('tonkho')" id="dt-tab-tonkho" class="py-3 px-2 active-tab"><i class="fa-solid fa-chart-pie mr-1"></i> Tồn Kho</button>
+        <button onclick="switchTab('giaodich')" id="dt-tab-giaodich" class="py-3 px-2 text-slate-600 hover:text-blue-600"><i class="fa-solid fa-arrow-right-arrow-left mr-1"></i> Giao Dịch</button>
+        <button onclick="switchTab('sanpham')" id="dt-tab-sanpham" class="py-3 px-2 text-slate-600 hover:text-blue-600"><i class="fa-solid fa-list-check mr-1"></i> Quản Lý Mặt Hàng</button>
+        <button onclick="switchTab('lichsu')" id="dt-tab-lichsu" class="py-3 px-2 text-slate-600 hover:text-blue-600"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Lịch Sử</button>
+    </div>
+</nav>
+
+<!-- Main Container -->
+<main class="max-w-6xl mx-auto p-4">
+
+    <!-- TAB 1: TỒN KHO -->
+    <section id="sec-tonkho" class="space-y-4">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-slate-600">Lọc theo nhóm:</span>
+                <select id="filterCategory" onchange="renderStock()" class="border border-slate-300 rounded-lg p-2 text-sm bg-slate-50 focus:outline-blue-500">
+                    <option value="ALL">Tất cả nhóm</option>
+                </select>
+            </div>
+            <div class="flex gap-2 text-xs">
+                <span class="px-2 py-1 bg-emerald-100 text-emerald-800 font-semibold rounded">An Toàn</span>
+                <span class="px-2 py-1 bg-amber-100 text-amber-800 font-semibold rounded">⚠️ Bán Thiếu</span>
+                <span class="px-2 py-1 bg-rose-100 text-rose-800 font-semibold rounded">⚠️ Tổng Thiếu</span>
+            </div>
+        </div>
+        <div id="stockContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- TAB 2: GIAO DỊCH -->
+    <section id="sec-giaodich" class="hidden space-y-4">
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 max-w-2xl mx-auto">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
+                <i class="fa-solid fa-square-plus text-blue-600"></i> Tạo Giao Dịch Kho
+            </h2>
+            <form id="transForm" onsubmit="handleTransaction(event)" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Thời Gian Giao Dịch</label>
+                        <input type="date" id="transDate" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Loại Giao Dịch</label>
+                        <select id="transType" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50 font-semibold">
+                            <option value="nhap_tong">📥 Nhập Kho Tổng (Từ NCC)</option>
+                            <option value="chuyen_kho">🔄 Xuất Tổng ➔ Nhập Kho Bán</option>
+                            <option value="xuat_ban">📤 Xuất Kho Bán (Tiêu hao / Bán)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Chọn Mặt Hàng</label>
+                        <select id="transItem" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Số Lượng Xuất/Nhập</label>
+                        <input type="number" id="transQty" min="1" value="1" required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+                    </div>
+                </div>
                 <div>
-                    <div id="clockTime" class="text-lg font-mono font-bold text-emerald-400">00:00:00</div>
-                    <div id="clockDate" class="text-xs text-slate-400">01/01/2026</div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Ghi Chú</label>
+                    <input type="text" id="transNote" placeholder="Diễn giải thêm..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
                 </div>
-                <button onclick="fetchCloudData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition-all" title="Tải lại dữ liệu mới nhất">
-                    <i class="fa-solid fa-rotate"></i>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg shadow-md transition-all">
+                    Thực Hiện Giao Dịch & Đồng Bộ
                 </button>
-            </div>
+            </form>
         </div>
-    </header>
+    </section>
 
-    <!-- Desktop Navigation -->
-    <nav class="bg-white border-b border-slate-200 hidden md:block">
-        <div class="max-w-6xl mx-auto flex space-x-8 px-4">
-            <button onclick="switchTab('tonkho')" id="dt-tab-tonkho" class="py-3 px-2 active-tab"><i class="fa-solid fa-chart-pie mr-1"></i> Tồn Kho</button>
-            <button onclick="switchTab('giaodich')" id="dt-tab-giaodich" class="py-3 px-2 text-slate-600 hover:text-blue-600"><i class="fa-solid fa-arrow-right-arrow-left mr-1"></i> Giao Dịch</button>
-            <button onclick="switchTab('sanpham')" id="dt-tab-sanpham" class="py-3 px-2 text-slate-600 hover:text-blue-600"><i class="fa-solid fa-list-check mr-1"></i> Quản Lý Mặt Hàng</button>
-            <button onclick="switchTab('lichsu')" id="dt-tab-lichsu" class="py-3 px-2 text-slate-600 hover:text-blue-600"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Lịch Sử</button>
-        </div>
-    </nav>
-
-    <!-- Main Container -->
-    <main class="max-w-6xl mx-auto p-4">
-
-        <!-- TAB 1: TỒN KHO -->
-        <section id="sec-tonkho" class="space-y-4">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                <div class="flex items-center gap-2">
-                    <span class="text-sm font-semibold text-slate-600">Lọc theo nhóm:</span>
-                    <select id="filterCategory" onchange="renderStock()" class="border border-slate-300 rounded-lg p-2 text-sm bg-slate-50 focus:outline-blue-500">
-                        <option value="ALL">Tất cả nhóm</option>
-                    </select>
+    <!-- TAB 3: QUẢN LÝ MẶT HÀNG -->
+    <section id="sec-sanpham" class="hidden space-y-4">
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
+                <i class="fa-solid fa-boxes-packing text-blue-600"></i> Thêm / Cập Nhật Mặt Hàng & Tồn Đầu Kỳ
+            </h2>
+            <form id="itemForm" onsubmit="handleSaveItem(event)" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Tên Mặt Hàng</label>
+                    <input type="text" id="itemName" required placeholder="Thịt bò, Than..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
                 </div>
-                <div class="flex gap-2 text-xs">
-                    <span class="px-2 py-1 bg-emerald-100 text-emerald-800 font-semibold rounded">An Toàn</span>
-                    <span class="px-2 py-1 bg-amber-100 text-amber-800 font-semibold rounded">⚠️ Bán Thiếu</span>
-                    <span class="px-2 py-1 bg-rose-100 text-rose-800 font-semibold rounded">⚠️ Tổng Thiếu</span>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Đơn Vị Tính</label>
+                    <input type="text" id="itemUnit" required placeholder="Kg, Thùng..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
                 </div>
-            </div>
-            <div id="stockContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-        </section>
-
-        <!-- TAB 2: GIAO DỊCH -->
-        <section id="sec-giaodich" class="hidden space-y-4">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 max-w-2xl mx-auto">
-                <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-square-plus text-blue-600"></i> Tạo Giao Dịch Kho
-                </h2>
-                <form id="transForm" onsubmit="handleTransaction(event)" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">Thời Gian Giao Dịch</label>
-                            <input type="date" id="transDate" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">Loại Giao Dịch</label>
-                            <select id="transType" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50 font-semibold">
-                                <option value="nhap_tong">📥 Nhập Kho Tổng (Từ NCC)</option>
-                                <option value="chuyen_kho">🔄 Xuất Tổng ➔ Nhập Kho Bán</option>
-                                <option value="xuat_ban">📤 Xuất Kho Bán (Tiêu hao / Bán)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">Chọn Mặt Hàng</label>
-                            <select id="transItem" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50"></select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">Số Lượng Xuất/Nhập</label>
-                            <input type="number" id="transQty" min="1" value="1" required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Ghi Chú</label>
-                        <input type="text" id="transNote" placeholder="Diễn giải thêm..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg shadow-md transition-all">
-                        Thực Hiện Giao Dịch & Đồng Bộ
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Nhóm Hàng</label>
+                    <input type="text" id="itemCat" required placeholder="Thịt, Than..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Tồn Đầu KHO TỔNG</label>
+                    <input type="number" id="initStockTong" min="0" value="0" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-orange-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Tồn Đầu KHO BÁN</label>
+                    <input type="number" id="initStockBan" min="0" value="0" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-blue-50">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Tồn Tối Thiểu (Cảnh báo)</label>
+                    <input type="number" id="itemMinStock" min="0" value="5" required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+                </div>
+                <div class="md:col-span-4 flex gap-2">
+                    <button type="submit" id="btnSaveItem" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-sm transition-all">
+                        Thêm / Lưu Mặt Hàng
                     </button>
-                </form>
-            </div>
-        </section>
-
-        <!-- TAB 3: QUẢN LÝ MẶT HÀNG -->
-        <section id="sec-sanpham" class="hidden space-y-4">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-boxes-packing text-blue-600"></i> Thêm / Cập Nhật Mặt Hàng & Tồn Đầu Kỳ
-                </h2>
-                <form id="itemForm" onsubmit="handleSaveItem(event)" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Tên Mặt Hàng</label>
-                        <input type="text" id="itemName" required placeholder="Thịt bò, Than..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Đơn Vị Tính</label>
-                        <input type="text" id="itemUnit" required placeholder="Kg, Thùng..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Nhóm Hàng</label>
-                        <input type="text" id="itemCat" required placeholder="Thịt, Than..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Tồn Đầu KHO TỔNG</label>
-                        <input type="number" id="initStockTong" min="0" value="0" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-orange-50">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Tồn Đầu KHO BÁN</label>
-                        <input type="number" id="initStockBan" min="0" value="0" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-blue-50">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Tồn Tối Thiểu (Cảnh báo)</label>
-                        <input type="number" id="itemMinStock" min="0" value="5" required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
-                    </div>
-                    <div class="md:col-span-4 flex gap-2">
-                        <button type="submit" id="btnSaveItem" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-sm transition-all">
-                            Thêm / Lưu Mặt Hàng
-                        </button>
-                        <button type="button" onclick="resetItemForm()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg text-sm">
-                            Hủy
-                        </button>
-                    </div>
-                </form>
-            </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
-                <h3 class="text-sm font-bold text-slate-700 mb-3">Danh Sách Mặt Hàng Kho FOH BKL</h3>
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="bg-slate-800 text-white">
-                            <th class="p-2 border">STT</th>
-                            <th class="p-2 border">Mặt Hàng</th>
-                            <th class="p-2 border">ĐVT</th>
-                            <th class="p-2 border">Nhóm</th>
-                            <th class="p-2 border bg-orange-900">Tồn Đầu Tổng</th>
-                            <th class="p-2 border bg-blue-900">Tồn Đầu Bán</th>
-                            <th class="p-2 border">Min Stock</th>
-                            <th class="p-2 border text-center">Thao Tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="itemListBody"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- TAB 4: LỊCH SỬ GIAO DỊCH -->
-        <section id="sec-lichsu" class="hidden space-y-4">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between gap-3">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-slate-600">Lọc theo tháng:</span>
-                    <input type="month" id="filterMonth" onchange="renderHistory()" class="border border-slate-300 rounded-lg p-1.5 text-xs bg-slate-50">
+                    <button type="button" onclick="resetItemForm()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg text-sm">
+                        Hủy
+                    </button>
                 </div>
-                <button onclick="clearHistory()" class="text-xs bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg hover:bg-rose-100 font-semibold">
-                    <i class="fa-solid fa-trash-can mr-1"></i> Xóa Lịch Sử
-                </button>
+            </form>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
+            <h3 class="text-sm font-bold text-slate-700 mb-3">Danh Sách Mặt Hàng Kho FOH BKL</h3>
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-slate-800 text-white">
+                        <th class="p-2 border">STT</th>
+                        <th class="p-2 border">Mặt Hàng</th>
+                        <th class="p-2 border">ĐVT</th>
+                        <th class="p-2 border">Nhóm</th>
+                        <th class="p-2 border bg-orange-900">Tồn Đầu Tổng</th>
+                        <th class="p-2 border bg-blue-900">Tồn Đầu Bán</th>
+                        <th class="p-2 border">Min Stock</th>
+                        <th class="p-2 border text-center">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody id="itemListBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- TAB 4: LỊCH SỬ GIAO DỊCH -->
+    <section id="sec-lichsu" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-600">Lọc theo tháng:</span>
+                <input type="month" id="filterMonth" onchange="renderHistory()" class="border border-slate-300 rounded-lg p-1.5 text-xs bg-slate-50">
             </div>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="bg-slate-800 text-white">
-                            <th class="p-2.5 border">Ngày GD</th>
-                            <th class="p-2.5 border">Loại</th>
-                            <th class="p-2.5 border">Tên Mặt Hàng</th>
-                            <th class="p-2.5 border">Số Lượng</th>
-                            <th class="p-2.5 border">Ghi Chú</th>
-                            <th class="p-2.5 border">Thời Gian Ghi Nhận</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyBody"></tbody>
-                </table>
-            </div>
-        </section>
+            <button onclick="clearHistory()" class="text-xs bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg hover:bg-rose-100 font-semibold">
+                <i class="fa-solid fa-trash-can mr-1"></i> Xóa Lịch Sử
+            </button>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-slate-800 text-white">
+                        <th class="p-2.5 border">Ngày GD</th>
+                        <th class="p-2.5 border">Loại</th>
+                        <th class="p-2.5 border">Tên Mặt Hàng</th>
+                        <th class="p-2.5 border">Số Lượng</th>
+                        <th class="p-2.5 border">Ghi Chú</th>
+                        <th class="p-2.5 border">Thời Gian Ghi Nhận</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+            </table>
+        </div>
+    </section>
 
-    </main>
+</main>
 
-    <!-- Mobile Bottom Navigation -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 flex justify-around py-2 shadow-lg text-slate-500">
-        <button onclick="switchTab('tonkho')" id="mb-tab-tonkho" class="flex flex-col items-center active-nav text-xs">
-            <i class="fa-solid fa-chart-pie text-lg"></i>
-            <span class="text-[10px]">Tồn Kho</span>
-        </button>
-        <button onclick="switchTab('giaodich')" id="mb-tab-giaodich" class="flex flex-col items-center text-xs">
-            <i class="fa-solid fa-arrow-right-arrow-left text-lg"></i>
-            <span class="text-[10px]">Giao Dịch</span>
-        </button>
-        <button onclick="switchTab('sanpham')" id="mb-tab-sanpham" class="flex flex-col items-center text-xs">
-            <i class="fa-solid fa-list-check text-lg"></i>
-            <span class="text-[10px]">Mặt Hàng</span>
-        </button>
-        <button onclick="switchTab('lichsu')" id="mb-tab-lichsu" class="flex flex-col items-center text-xs">
-            <i class="fa-solid fa-clock-rotate-left text-lg"></i>
-            <span class="text-[10px]">Lịch Sử</span>
-        </button>
-    </nav>
+<!-- Mobile Bottom Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 flex justify-around py-2 shadow-lg text-slate-500">
+    <button onclick="switchTab('tonkho')" id="mb-tab-tonkho" class="flex flex-col items-center active-nav text-xs">
+        <i class="fa-solid fa-chart-pie text-lg"></i>
+        <span class="text-[10px]">Tồn Kho</span>
+    </button>
+    <button onclick="switchTab('giaodich')" id="mb-tab-giaodich" class="flex flex-col items-center text-xs">
+        <i class="fa-solid fa-arrow-right-arrow-left text-lg"></i>
+        <span class="text-[10px]">Giao Dịch</span>
+    </button>
+    <button onclick="switchTab('sanpham')" id="mb-tab-sanpham" class="flex flex-col items-center text-xs">
+        <i class="fa-solid fa-list-check text-lg"></i>
+        <span class="text-[10px]">Mặt Hàng</span>
+    </button>
+    <button onclick="switchTab('lichsu')" id="mb-tab-lichsu" class="flex flex-col items-center text-xs">
+        <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+        <span class="text-[10px]">Lịch Sử</span>
+    </button>
+</nav>
 
-    <script>
-        // Link Google Apps Script chuẩn của Ken
-        const API_URL = "https://script.google.com/macros/s/AKfycbzusCvmWLAg70tu7KqClzbPYNIjuh5OVSnaNSGHyLGqtF6cosMUB_xnVTIJH8PYa3hY/exec";
+<script>
+    // Link Google Apps Script chuẩn của Ken mới nhất
+    const API_URL = "https://script.google.com/macros/s/AKfycbx9hWSACJ7Dz4DmayzrAcXfqzLM16KwvM3X6BPOJj2c8p-xWc4mbi2-o5anF8xokB0K2Q/exec";
 
-        let items = {};
-        let transactions = [];
+    let items = {};
+    let transactions = [];
 
-        // Realtime Clock
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clockTime').innerText = now.toLocaleTimeString('vi-VN');
-            document.getElementById('clockDate').innerText = now.toLocaleDateString('vi-VN');
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
+    // Realtime Clock
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clockTime').innerText = now.toLocaleTimeString('vi-VN');
+        document.getElementById('clockDate').innerText = now.toLocaleDateString('vi-VN');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 
-        document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
 
-        // Tải dữ liệu từ Google Sheets (Cloud) về cho tất cả thiết bị
-        function fetchCloudData() {
-            const statusEl = document.getElementById('syncStatus');
-            statusEl.innerText = "⏳ Đang đồng bộ dữ liệu...";
-            statusEl.className = "text-xs text-amber-400 font-semibold";
+    // Tải dữ liệu từ Google Sheets (Cloud) về cho tất cả thiết bị
+    function fetchCloudData() {
+        const statusEl = document.getElementById('syncStatus');
+        statusEl.innerText = "⏳ Đang đồng bộ dữ liệu...";
+        statusEl.className = "text-xs text-amber-400 font-semibold";
 
-            fetch(API_URL)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.items) {
-                        items = data.items;
-                        transactions = data.transactions || [];
-                        renderStock();
-                        statusEl.innerText = "🟢 Đã đồng bộ Online";
-                        statusEl.className = "text-xs text-emerald-400 font-semibold";
-                    }
-                })
-                .catch(err => {
-                    console.error("Lỗi tải Cloud:", err);
-                    statusEl.innerText = "🔴 Lỗi kết nối Cloud";
-                    statusEl.className = "text-xs text-rose-400 font-semibold";
-                });
-        }
-
-        // Lưu toàn bộ dữ liệu lên Google Sheets (Cloud) khi có thay đổi
-        function saveToCloud() {
-            const statusEl = document.getElementById('syncStatus');
-            statusEl.innerText = "⏳ Đang lưu dữ liệu lên Sheets...";
-            statusEl.className = "text-xs text-amber-400 font-semibold";
-
-            fetch(API_URL, {
-                method: "POST",
-                body: JSON.stringify({ action: "saveAll", items: items, transactions: transactions })
-            })
+        fetch(API_URL)
             .then(res => res.json())
-            .then(res => {
-                statusEl.innerText = "🟢 Đã đồng bộ Online";
-                statusEl.className = "text-xs text-emerald-400 font-semibold";
+            .then(data => {
+                if (data && data.items) {
+                    items = data.items;
+                    transactions = data.transactions || [];
+                    renderStock();
+                    statusEl.innerText = "🟢 Đã đồng bộ Online";
+                    statusEl.className = "text-xs text-emerald-400 font-semibold";
+                }
             })
             .catch(err => {
-                console.error("Lỗi lưu Cloud:", err);
-                statusEl.innerText = "🔴 Lỗi lưu Cloud";
+                console.error("Lỗi tải Cloud:", err);
+                statusEl.innerText = "🔴 Lỗi kết nối Cloud";
                 statusEl.className = "text-xs text-rose-400 font-semibold";
             });
+    }
+
+    // Lưu toàn bộ dữ liệu lên Google Sheets (Cloud) khi có thay đổi
+    function saveToCloud() {
+        const statusEl = document.getElementById('syncStatus');
+        statusEl.innerText = "⏳ Đang lưu dữ liệu lên Sheets...";
+        statusEl.className = "text-xs text-amber-400 font-semibold";
+
+        fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "saveAll", items: items, transactions: transactions })
+        })
+        .then(res => res.json())
+        .then(res => {
+            statusEl.innerText = "🟢 Đã đồng bộ Online";
+            statusEl.className = "text-xs text-emerald-400 font-semibold";
+        })
+        .catch(err => {
+            console.error("Lỗi lưu Cloud:", err);
+            statusEl.innerText = "🔴 Lỗi lưu Cloud";
+            statusEl.className = "text-xs text-rose-400 font-semibold";
+        });
+    }
+
+    function switchTab(tabId) {
+        ['tonkho', 'giaodich', 'sanpham', 'lichsu'].forEach(t => {
+            document.getElementById(`sec-${t}`).classList.add('hidden');
+            let dtBtn = document.getElementById(`dt-tab-${t}`);
+            if (dtBtn) dtBtn.className = "py-3 px-2 text-slate-600 hover:text-blue-600";
+            let mbBtn = document.getElementById(`mb-tab-${t}`);
+            if (mbBtn) mbBtn.className = "flex flex-col items-center text-xs text-slate-500";
+        });
+        document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+        let activeDt = document.getElementById(`dt-tab-${tabId}`);
+        if (activeDt) activeDt.className = "py-3 px-2 active-tab";
+        let activeMb = document.getElementById(`mb-tab-${tabId}`);
+        if (activeMb) activeMb.className = "flex flex-col items-center active-nav text-xs";
+
+        if (tabId === 'tonkho') renderStock();
+        if (tabId === 'giaodich') renderTransSelect();
+        if (tabId === 'sanpham') renderItemList();
+        if (tabId === 'lichsu') renderHistory();
+    }
+
+    function getStockData() {
+        let stockMap = {};
+        for (let name in items) {
+            stockMap[name] = {
+                unit: items[name].unit,
+                cat: items[name].cat,
+                minStock: items[name].minStock,
+                initTong: items[name].initTong || 0,
+                initBan: items[name].initBan || 0,
+                nhapTong: 0,
+                chuyenKho: 0,
+                nhanBan: 0,
+                xuatBan: 0
+            };
         }
-
-        function switchTab(tabId) {
-            ['tonkho', 'giaodich', 'sanpham', 'lichsu'].forEach(t => {
-                document.getElementById(`sec-${t}`).classList.add('hidden');
-                let dtBtn = document.getElementById(`dt-tab-${t}`);
-                if (dtBtn) dtBtn.className = "py-3 px-2 text-slate-600 hover:text-blue-600";
-                let mbBtn = document.getElementById(`mb-tab-${t}`);
-                if (mbBtn) mbBtn.className = "flex flex-col items-center text-xs text-slate-500";
-            });
-            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
-            let activeDt = document.getElementById(`dt-tab-${tabId}`);
-            if (activeDt) activeDt.className = "py-3 px-2 active-tab";
-            let activeMb = document.getElementById(`mb-tab-${tabId}`);
-            if (activeMb) activeMb.className = "flex flex-col items-center active-nav text-xs";
-
-            if (tabId === 'tonkho') renderStock();
-            if (tabId === 'giaodich') renderTransSelect();
-            if (tabId === 'sanpham') renderItemList();
-            if (tabId === 'lichsu') renderHistory();
-        }
-
-        function getStockData() {
-            let stockMap = {};
-            for (let name in items) {
-                stockMap[name] = {
-                    unit: items[name].unit,
-                    cat: items[name].cat,
-                    minStock: items[name].minStock,
-                    initTong: items[name].initTong || 0,
-                    initBan: items[name].initBan || 0,
-                    nhapTong: 0,
-                    chuyenKho: 0,
-                    nhanBan: 0,
-                    xuatBan: 0
-                };
+        transactions.forEach(tx => {
+            if (stockMap[tx.itemName]) {
+                let qty = parseInt(tx.qty);
+                if (tx.type === 'nhap_tong') stockMap[tx.itemName].nhapTong += qty;
+                if (tx.type === 'chuyen_kho') {
+                    stockMap[tx.itemName].chuyenKho += qty;
+                    stockMap[tx.itemName].nhanBan += qty;
+                }
+                if (tx.type === 'xuat_ban') stockMap[tx.itemName].xuatBan += qty;
             }
-            transactions.forEach(tx => {
-                if (stockMap[tx.itemName]) {
-                    let qty = parseInt(tx.qty);
-                    if (tx.type === 'nhap_tong') stockMap[tx.itemName].nhapTong += qty;
-                    if (tx.type === 'chuyen_kho') {
-                        stockMap[tx.itemName].chuyenKho += qty;
-                        stockMap[tx.itemName].nhanBan += qty;
-                    }
-                    if (tx.type === 'xuat_ban') stockMap[tx.itemName].xuatBan += qty;
-                }
-            });
-            return stockMap;
-        }
+        });
+        return stockMap;
+    }
 
-        function renderStock() {
-            const stockData = getStockData();
-            const container = document.getElementById('stockContainer');
-            const filterCat = document.getElementById('filterCategory').value;
-            container.innerHTML = '';
+    function renderStock() {
+        const stockData = getStockData();
+        const container = document.getElementById('stockContainer');
+        const filterCat = document.getElementById('filterCategory').value;
+        container.innerHTML = '';
 
-            const catSet = new Set(Object.values(items).map(i => i.cat));
-            const selectCat = document.getElementById('filterCategory');
-            selectCat.innerHTML = '<option value="ALL">Tất cả nhóm</option>';
-            catSet.forEach(c => {
-                selectCat.innerHTML += `<option value="${c}" ${filterCat === c ? 'selected' : ''}>${c}</option>`;
-            });
+        const catSet = new Set(Object.values(items).map(i => i.cat));
+        const selectCat = document.getElementById('filterCategory');
+        selectCat.innerHTML = '<option value="ALL">Tất cả nhóm</option>';
+        catSet.forEach(c => {
+            selectCat.innerHTML += `<option value="${c}" ${filterCat === c ? 'selected' : ''}>${c}</option>`;
+        });
 
-            for (let name in stockData) {
-                let item = stockData[name];
-                if (filterCat !== 'ALL' && item.cat !== filterCat) continue;
+        for (let name in stockData) {
+            let item = stockData[name];
+            if (filterCat !== 'ALL' && item.cat !== filterCat) continue;
 
-                let tonTong = item.initTong + item.nhapTong - item.chuyenKho;
-                let tonBan = item.initBan + item.nhanBan - item.xuatBan;
+            let tonTong = item.initTong + item.nhapTong - item.chuyenKho;
+            let tonBan = item.initBan + item.nhanBan - item.xuatBan;
 
-                let isTongLow = tonTong <= item.minStock;
-                let isBanLow = tonBan <= item.minStock;
-                let cardBg = "bg-white border-slate-200";
-                let badge = "";
+            let isTongLow = tonTong <= item.minStock;
+            let isBanLow = tonBan <= item.minStock;
+            let cardBg = "bg-white border-slate-200";
+            let badge = "";
 
-                if (isTongLow) {
-                    cardBg = "bg-rose-50/60 border-rose-200";
-                    badge += `<span class="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-bold">⚠️ Cần Nhập Tổng</span>`;
-                }
-                if (isBanLow) {
-                    if (!isTongLow) cardBg = "bg-amber-50/60 border-amber-200";
-                    badge += `<span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold">⚠️ Cần Bổ Sung Bán</span>`;
-                }
+            if (isTongLow) {
+                cardBg = "bg-rose-50/60 border-rose-200";
+                badge += `<span class="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-bold">⚠️ Cần Nhập Tổng</span>`;
+            }
+            if (isBanLow) {
+                if (!isTongLow) cardBg = "bg-amber-50/60 border-amber-200";
+                badge += `<span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold">⚠️ Cần Bổ Sung Bán</span>`;
+            }
 
-                container.innerHTML += `
-                    <div class="${cardBg} border rounded-xl p-4 shadow-sm relative space-y-3">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">${item.cat}</span>
-                                <h3 class="font-bold text-base text-slate-800 mt-1">${name}</h3>
-                                <p class="text-xs text-slate-500">ĐVT: ${item.unit} | Mức tối thiểu: ${item.minStock}</p>
-                            </div>
-                            <div class="flex flex-col gap-1 items-end">${badge}</div>
+            container.innerHTML += `
+                <div class="${cardBg} border rounded-xl p-4 shadow-sm relative space-y-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">${item.cat}</span>
+                            <h3 class="font-bold text-base text-slate-800 mt-1">${name}</h3>
+                            <p class="text-xs text-slate-500">ĐVT: ${item.unit} | Mức tối thiểu: ${item.minStock}</p>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-center text-xs pt-2 border-t border-slate-100">
-                            <div class="bg-orange-50/80 p-2 rounded-lg border border-orange-100">
-                                <span class="text-[10px] font-bold text-orange-700 block">KHO TỔNG</span>
-                                <span class="text-lg font-bold ${isTongLow ? 'text-rose-600' : 'text-slate-800'}">${tonTong}</span>
-                                <div class="text-[9px] text-slate-400 mt-0.5">Đầu: ${item.initTong} | Nhập: ${item.nhapTong}</div>
-                            </div>
-                            <div class="bg-blue-50/80 p-2 rounded-lg border border-blue-100">
-                                <span class="text-[10px] font-bold text-blue-700 block">KHO BÁN</span>
-                                <span class="text-lg font-bold ${isBanLow ? 'text-amber-600' : 'text-slate-800'}">${tonBan}</span>
-                                <div class="text-[9px] text-slate-400 mt-0.5">Đầu: ${item.initBan} | Xuất: ${item.xuatBan}</div>
-                            </div>
+                        <div class="flex flex-col gap-1 items-end">${badge}</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-xs pt-2 border-t border-slate-100">
+                        <div class="bg-orange-50/80 p-2 rounded-lg border border-orange-100">
+                            <span class="text-[10px] font-bold text-orange-700 block">KHO TỔNG</span>
+                            <span class="text-lg font-bold ${isTongLow ? 'text-rose-600' : 'text-slate-800'}">${tonTong}</span>
+                            <div class="text-[9px] text-slate-400 mt-0.5">Đầu: ${item.initTong} | Nhập: ${item.nhapTong}</div>
+                        </div>
+                        <div class="bg-blue-50/80 p-2 rounded-lg border border-blue-100">
+                            <span class="text-[10px] font-bold text-blue-700 block">KHO BÁN</span>
+                            <span class="text-lg font-bold ${isBanLow ? 'text-amber-600' : 'text-slate-800'}">${tonBan}</span>
+                            <div class="text-[9px] text-slate-400 mt-0.5">Đầu: ${item.initBan} | Xuất: ${item.xuatBan}</div>
                         </div>
                     </div>
-                `;
-            }
+                </div>
+            `;
+        }
+    }
+
+    function renderTransSelect() {
+        const select = document.getElementById('transItem');
+        select.innerHTML = '';
+        for (let name in items) {
+            select.innerHTML += `<option value="${name}">${name} (${items[name].unit})</option>`;
+        }
+    }
+
+    function handleTransaction(e) {
+        e.preventDefault();
+        const date = document.getElementById('transDate').value;
+        const type = document.getElementById('transType').value;
+        const itemName = document.getElementById('transItem').value;
+        const qty = parseInt(document.getElementById('transQty').value);
+        const note = document.getElementById('transNote').value;
+
+        const stockData = getStockData()[itemName];
+        if (!stockData) { alert("Mặt hàng không tồn tại!"); return; }
+
+        let currentTong = stockData.initTong + stockData.nhapTong - stockData.chuyenKho;
+        let currentBan = stockData.initBan + stockData.nhanBan - stockData.xuatBan;
+
+        if (type === 'chuyen_kho' && qty > currentTong) {
+            alert(`Kho tổng không đủ hàng để chuyển! Tồn kho tổng hiện tại: ${currentTong}`);
+            return;
         }
 
-        function renderTransSelect() {
-            const select = document.getElementById('transItem');
-            select.innerHTML = '';
-            for (let name in items) {
-                select.innerHTML += `<option value="${name}">${name} (${items[name].unit})</option>`;
-            }
+        if (type === 'xuat_ban' && qty > currentBan) {
+            alert(`Kho bán không đủ hàng để xuất! Tồn kho bán hiện tại: ${currentBan}`);
+            return;
         }
 
-        function handleTransaction(e) {
-            e.preventDefault();
-            const date = document.getElementById('transDate').value;
-            const type = document.getElementById('transType').value;
-            const itemName = document.getElementById('transItem').value;
-            const qty = parseInt(document.getElementById('transQty').value);
-            const note = document.getElementById('transNote').value;
+        const recordTime = new Date().toLocaleString('vi-VN');
+        transactions.push({ date, type, itemName, qty, note, recordTime });
+        
+        // Lưu lên Google Sheets và đồng bộ cho mọi máy
+        saveToCloud();
 
-            const stockData = getStockData()[itemName];
-            if (!stockData) { alert("Mặt hàng không tồn tại!"); return; }
+        alert('Đã ghi nhận giao dịch và đồng bộ lên Google Sheets!');
+        document.getElementById('transQty').value = '1';
+        document.getElementById('transNote').value = '';
+        switchTab('tonkho');
+    }
 
-            let currentTong = stockData.initTong + stockData.nhapTong - stockData.chuyenKho;
-            let currentBan = stockData.initBan + stockData.nhanBan - stockData.xuatBan;
+    function handleSaveItem(e) {
+        e.preventDefault();
+        const name = document.getElementById('itemName').value.trim();
+        const unit = document.getElementById('itemUnit').value.trim();
+        const cat = document.getElementById('itemCat').value.trim();
+        const initTong = parseInt(document.getElementById('initStockTong').value) || 0;
+        const initBan = parseInt(document.getElementById('initStockBan').value) || 0;
+        const minStock = parseInt(document.getElementById('itemMinStock').value) || 0;
 
-            if (type === 'chuyen_kho' && qty > currentTong) {
-                alert(`Kho tổng không đủ hàng để chuyển! Tồn kho tổng hiện tại: ${currentTong}`);
-                return;
-            }
+        items[name] = { unit, cat, initTong, initBan, minStock };
+        saveToCloud();
+        resetItemForm();
+        renderItemList();
+        alert('Đã lưu thông tin mặt hàng và đồng bộ!');
+    }
 
-            if (type === 'xuat_ban' && qty > currentBan) {
-                alert(`Kho bán không đủ hàng để xuất! Tồn kho bán hiện tại: ${currentBan}`);
-                return;
-            }
-
-            const recordTime = new Date().toLocaleString('vi-VN');
-            transactions.push({ date, type, itemName, qty, note, recordTime });
-            
-            // Lưu lên Google Sheets và đồng bộ cho mọi máy
+    function deleteItem(name) {
+        if (confirm(`Bạn có chắc chắn muốn xóa mặt hàng "${name}"?`)) {
+            delete items[name];
             saveToCloud();
-
-            alert('Đã ghi nhận giao dịch và đồng bộ lên Google Sheets!');
-            document.getElementById('transQty').value = '1';
-            document.getElementById('transNote').value = '';
-            switchTab('tonkho');
-        }
-
-        function handleSaveItem(e) {
-            e.preventDefault();
-            const name = document.getElementById('itemName').value.trim();
-            const unit = document.getElementById('itemUnit').value.trim();
-            const cat = document.getElementById('itemCat').value.trim();
-            const initTong = parseInt(document.getElementById('initStockTong').value) || 0;
-            const initBan = parseInt(document.getElementById('initStockBan').value) || 0;
-            const minStock = parseInt(document.getElementById('itemMinStock').value) || 0;
-
-            items[name] = { unit, cat, initTong, initBan, minStock };
-            saveToCloud();
-            resetItemForm();
             renderItemList();
-            alert('Đã lưu thông tin mặt hàng và đồng bộ!');
         }
+    }
 
-        function deleteItem(name) {
-            if (confirm(`Bạn có chắc chắn muốn xóa mặt hàng "${name}"?`)) {
-                delete items[name];
-                saveToCloud();
-                renderItemList();
-            }
+    function resetItemForm() {
+        document.getElementById('itemForm').reset();
+        document.getElementById('btnSaveItem').innerText = 'Thêm / Lưu Mặt Hàng';
+    }
+
+    function renderItemList() {
+        const body = document.getElementById('itemListBody');
+        body.innerHTML = '';
+        let stt = 1;
+        for (let name in items) {
+            let item = items[name];
+            body.innerHTML += `
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="p-2 border">${stt++}</td>
+                    <td class="p-2 border font-bold">${name}</td>
+                    <td class="p-2 border">${item.unit}</td>
+                    <td class="p-2 border">${item.cat}</td>
+                    <td class="p-2 border bg-orange-50 font-bold text-orange-700">${item.initTong || 0}</td>
+                    <td class="p-2 border bg-blue-50 font-bold text-blue-700">${item.initBan || 0}</td>
+                    <td class="p-2 border">${item.minStock}</td>
+                    <td class="p-2 border text-center space-x-1">
+                        <button onclick="deleteItem('${name}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
         }
+    }
 
-        function resetItemForm() {
-            document.getElementById('itemForm').reset();
-            document.getElementById('btnSaveItem').innerText = 'Thêm / Lưu Mặt Hàng';
+    function renderHistory() {
+        const body = document.getElementById('historyBody');
+        const filterM = document.getElementById('filterMonth').value;
+        body.innerHTML = '';
+        let filtered = [...transactions].reverse();
+        if (filterM) {
+            filtered = filtered.filter(tx => tx.date.startsWith(filterM));
         }
+        filtered.forEach(tx => {
+            let badge = '';
+            if (tx.type === 'nhap_tong') badge = '<span class="bg-orange-100 text-orange-800 text-[10px] px-2 py-0.5 rounded font-bold">Nhập Kho Tổng</span>';
+            if (tx.type === 'chuyen_kho') badge = '<span class="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded font-bold">Chuyển Tổng ➔ Bán</span>';
+            if (tx.type === 'xuat_ban') badge = '<span class="bg-blue-100 text-blue-800 text-[10px] px-2 py-0.5 rounded font-bold">Xuất Kho Bán</span>';
 
-        function renderItemList() {
-            const body = document.getElementById('itemListBody');
-            body.innerHTML = '';
-            let stt = 1;
-            for (let name in items) {
-                let item = items[name];
-                body.innerHTML += `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="p-2 border">${stt++}</td>
-                        <td class="p-2 border font-bold">${name}</td>
-                        <td class="p-2 border">${item.unit}</td>
-                        <td class="p-2 border">${item.cat}</td>
-                        <td class="p-2 border bg-orange-50 font-bold text-orange-700">${item.initTong || 0}</td>
-                        <td class="p-2 border bg-blue-50 font-bold text-blue-700">${item.initBan || 0}</td>
-                        <td class="p-2 border">${item.minStock}</td>
-                        <td class="p-2 border text-center space-x-1">
-                            <button onclick="deleteItem('${name}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            }
+            body.innerHTML += `
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="p-2.5 border font-semibold">${tx.date}</td>
+                    <td class="p-2.5 border">${badge}</td>
+                    <td class="p-2.5 border font-bold">${tx.itemName}</td>
+                    <td class="p-2.5 border font-bold text-slate-800">${tx.qty}</td>
+                    <td class="p-2.5 border text-slate-500">${tx.note || '-'}</td>
+                    <td class="p-2.5 border text-slate-400 text-[10px]">${tx.recordTime}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function clearHistory() {
+        if (confirm('Xóa toàn bộ lịch sử giao dịch?')) {
+            transactions = [];
+            saveToCloud();
+            renderHistory();
         }
+    }
 
-        function renderHistory() {
-            const body = document.getElementById('historyBody');
-            const filterM = document.getElementById('filterMonth').value;
-            body.innerHTML = '';
-            let filtered = [...transactions].reverse();
-            if (filterM) {
-                filtered = filtered.filter(tx => tx.date.startsWith(filterM));
-            }
-            filtered.forEach(tx => {
-                let badge = '';
-                if (tx.type === 'nhap_tong') badge = '<span class="bg-orange-100 text-orange-800 text-[10px] px-2 py-0.5 rounded font-bold">Nhập Kho Tổng</span>';
-                if (tx.type === 'chuyen_kho') badge = '<span class="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded font-bold">Chuyển Tổng ➔ Bán</span>';
-                if (tx.type === 'xuat_ban') badge = '<span class="bg-blue-100 text-blue-800 text-[10px] px-2 py-0.5 rounded font-bold">Xuất Kho Bán</span>';
-
-                body.innerHTML += `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="p-2.5 border font-semibold">${tx.date}</td>
-                        <td class="p-2.5 border">${badge}</td>
-                        <td class="p-2.5 border font-bold">${tx.itemName}</td>
-                        <td class="p-2.5 border font-bold text-slate-800">${tx.qty}</td>
-                        <td class="p-2.5 border text-slate-500">${tx.note || '-'}</td>
-                        <td class="p-2.5 border text-slate-400 text-[10px]">${tx.recordTime}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function clearHistory() {
-            if (confirm('Xóa toàn bộ lịch sử giao dịch?')) {
-                transactions = [];
-                saveToCloud();
-                renderHistory();
-            }
-        }
-
-        // Tự động tải dữ liệu từ Google Sheets ngay khi mở trang
-        fetchCloudData();
-    </script>
-</body>
-</html>
+    // Tự động tải dữ liệu từ Google Sheets ngay khi mở trang
+    fetchCloudData();
+</script>
