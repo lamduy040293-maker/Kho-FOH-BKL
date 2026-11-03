@@ -13,10 +13,6 @@
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans pb-20 md:pb-6">
-    <!-- Chosen Palette: Slate Neutral & Electric Blue Accent -->
-    <!-- Application Structure Plan: SPA Responsive layout with Navigation Tabs (Tồn Kho, Giao Dịch, Quản Lý Mặt Hàng, Lịch Sử, Lưu & Phục Hồi). Supports Mobile Bottom Navigation & Desktop Top Tabs. Real-time clock and multi-warehouse tracking without price fields. -->
-    <!-- Visualization & Content Choices: Dynamic UI cards for mobile stock overview, tabular format for history and item management, local data persistence with JSON import/export functionality. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
     <!-- Header & Realtime Clock -->
     <header class="bg-slate-900 text-white p-4 shadow-md sticky top-0 z-50">
@@ -63,11 +59,7 @@
                     <span class="px-2 py-1 bg-rose-100 text-rose-800 font-semibold rounded">⚠️ Tổng Thiếu</span>
                 </div>
             </div>
-
-            <!-- Mobile Cards View / Desktop Grid View -->
-            <div id="stockContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Javascript Render -->
-            </div>
+            <div id="stockContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </section>
 
         <!-- TAB 2: GIAO DỊCH -->
@@ -91,25 +83,20 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">Chọn Mặt Hàng</label>
-                            <select id="transItem" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50">
-                                <!-- Render JS -->
-                            </select>
+                            <select id="transItem" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50"></select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">Số Lượng Xuất/Nhập</label>
                             <input type="number" id="transQty" min="1" value="1" required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
                         </div>
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">Ghi Chú</label>
                         <input type="text" id="transNote" placeholder="Diễn giải thêm..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
                     </div>
-
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg shadow-md transition-all">
                         Thực Hiện Giao Dịch
                     </button>
@@ -159,8 +146,6 @@
                     </div>
                 </form>
             </div>
-
-            <!-- Danh sách mặt hàng -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
                 <h3 class="text-sm font-bold text-slate-700 mb-3">Danh Sách Mặt Hàng Kho FOH BKL</h3>
                 <table class="w-full text-left text-xs border-collapse">
@@ -176,9 +161,7 @@
                             <th class="p-2 border text-center">Thao Tác</th>
                         </tr>
                     </thead>
-                    <tbody id="itemListBody">
-                        <!-- JS Render -->
-                    </tbody>
+                    <tbody id="itemListBody"></tbody>
                 </table>
             </div>
         </section>
@@ -194,7 +177,6 @@
                     <i class="fa-solid fa-trash-can mr-1"></i> Xóa Lịch Sử
                 </button>
             </div>
-
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
@@ -207,9 +189,7 @@
                             <th class="p-2.5 border">Thời Gian Ghi Nhận</th>
                         </tr>
                     </thead>
-                    <tbody id="historyBody">
-                        <!-- JS Render -->
-                    </tbody>
+                    <tbody id="historyBody"></tbody>
                 </table>
             </div>
         </section>
@@ -219,17 +199,14 @@
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-lg mx-auto text-center space-y-4">
                 <i class="fa-solid fa-file-shield text-5xl text-blue-600"></i>
                 <h2 class="text-lg font-bold text-slate-800">Lưu Trữ & Phục Hồi Dữ Liệu</h2>
-                <p class="text-xs text-slate-500">Xuất file JSON sao lưu để cất giữ hoặc chuyển sang máy/điện thoại khác.</p>
-                
+                <p class="text-xs text-slate-500">Xuất file JSON sao lưu hoặc cập nhật trực tiếp.</p>
                 <div class="flex flex-col gap-3">
-                    
                     <button onclick="saveSelfContainedHTML()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-lg shadow text-sm">
                         <i class="fa-solid fa-file-code mr-2"></i> Lưu Trực Tiếp Vào File HTML (Cập Nhật State)
                     </button>
                     <button onclick="exportJSON()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg shadow text-sm">
                         <i class="fa-solid fa-download mr-2"></i> Lưu File Dữ Liệu (Xuất JSON)
                     </button>
-                    
                     <label class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-lg shadow text-sm cursor-pointer block">
                         <i class="fa-solid fa-upload mr-2"></i> Tải File Lên (Nhập JSON)
                         <input type="file" id="importFile" accept=".json" onchange="importJSON(event)" class="hidden">
@@ -267,580 +244,47 @@
     <script>
         // Data Structures
         let items = JSON.parse(localStorage.getItem('bkl_items')) || {
-  "Tiger Bạc 250ml": {
-    "unit": "Lon",
-    "cat": "Beer",
-    "initTong": 960,
-    "initBan": 758,
-    "minStock": 240
-  },
-  "Ken Bạc 250ml": {
-    "unit": "Lon",
-    "cat": "Beer",
-    "initTong": 672,
-    "initBan": 616,
-    "minStock": 480
-  },
-  "Tiger Nâu 330ml": {
-    "unit": "Lon",
-    "cat": "Beer",
-    "initTong": 336,
-    "initBan": 273,
-    "minStock": 240
-  },
-  "Tiger Bạc 330ml": {
-    "unit": "Lon",
-    "cat": "Beer",
-    "initTong": 0,
-    "initBan": 639,
-    "minStock": 120
-  },
-  "Sài Gòn Xanh 330ml": {
-    "unit": "Lon",
-    "cat": "Beer",
-    "initTong": 0,
-    "initBan": 91,
-    "minStock": 240
-  },
-  "Sting Đỏ": {
-    "unit": "Lon",
-    "cat": "Nước ngọt",
-    "initTong": 560,
-    "initBan": 1119,
-    "minStock": 240
-  },
-  "Sprite": {
-    "unit": "Lon",
-    "cat": "Nước ngọt",
-    "initTong": 1392,
-    "initBan": 649,
-    "minStock": 240
-  },
-  "Coca - Cola": {
-    "unit": "Lon",
-    "cat": "Nước ngọt",
-    "initTong": 1896,
-    "initBan": 511,
-    "minStock": 240
-  },
-  "Suối Dasani": {
-    "unit": "Lon",
-    "cat": "Nước ngọt",
-    "initTong": 0,
-    "initBan": 1074,
-    "minStock": 360
-  },
-  "Rượu cần 4lít": {
-    "unit": "Bình",
-    "cat": "Rượu",
-    "initTong": 0,
-    "initBan": 14,
-    "minStock": 10
-  },
-  "Rượu Táo Mèo": {
-    "unit": "Lít",
-    "cat": "Rượu",
-    "initTong": 300,
-    "initBan": 150,
-    "minStock": 200
-  },
-  "Rượu Mơ": {
-    "unit": "Lít",
-    "cat": "Rượu",
-    "initTong": 260,
-    "initBan": 110,
-    "minStock": 200
-  },
-  "Than hao - Nướng": {
-    "unit": "Kg",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 20
-  },
-  "Cồn thạch": {
-    "unit": "Thùng",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 10
-  },
-  "Khăn ướt - Đoàn": {
-    "unit": "Cái",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 1000
-  },
-  "Tấm setup đoàn - Đoàn": {
-    "unit": "Cái",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 1000
-  },
-  "Bao đũa": {
-    "unit": "Cái",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 1000
-  },
-  "Bao muỗng": {
-    "unit": "Cái",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 1000
-  },
-  "Ống hút rượu cần": {
-    "unit": "Cái",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 20
-  },
-  "Giấy ăn 100tờ/gói - 100gói/bịch": {
-    "unit": "Gói",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 100
-  },
-  "Giấy chữ nhật": {
-    "unit": "Gói",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 20
-  },
-  "Giấy lau tay": {
-    "unit": "Gói",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 20
-  },
-  "Giấy vệ sinh cuộn": {
-    "unit": "Cuộn",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 100
-  },
-  "Ly giấy 6oz - 50 cái/lốc": {
-    "unit": "Lốc",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 10
-  },
-  "Giấy in bill": {
-    "unit": "Cuộn",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 60
-  },
-  "Giấy vuông": {
-    "unit": "Bịch",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 10
-  },
-  "Bao tay xé gà": {
-    "unit": "Kg",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 10
-  },
-  "Bịch rác lớn - Đen": {
-    "unit": "Kg",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 50
-  },
-  "Hộp mang về": {
-    "unit": "Cái",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 50
-  },
-  "Tăm": {
-    "unit": "Lóc",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 20
-  },
-  "Chai xịt phòng": {
-    "unit": "Chai",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 5
-  },
-  "Nước lau kính": {
-    "unit": "Chai",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 5
-  },
-  "Nước lau sàn": {
-    "unit": "Can",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 10
-  },
-  "Nước rửa chén": {
-    "unit": "Can",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 10
-  },
-  "Nước rửa tay": {
-    "unit": "Can",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 5
-  },
-  "Atiso": {
-    "unit": "Bịch",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 5
-  },
-  "Ống hút đen": {
-    "unit": "Lóc",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 100
-  },
-  "Hộp giấy ăn": {
-    "unit": "Cái",
-    "cat": "CCDC tiêu hao",
-    "initTong": 0,
-    "initBan": 0,
-    "minStock": 20
-  }
-};
+          "Tiger Bạc 250ml": { "unit": "Lon", "cat": "Beer", "initTong": 960, "initBan": 758, "minStock": 240 },
+          "Ken Bạc 250ml": { "unit": "Lon", "cat": "Beer", "initTong": 672, "initBan": 616, "minStock": 480 },
+          "Tiger Nâu 330ml": { "unit": "Lon", "cat": "Beer", "initTong": 336, "initBan": 273, "minStock": 240 },
+          "Tiger Bạc 330ml": { "unit": "Lon", "cat": "Beer", "initTong": 0, "initBan": 639, "minStock": 120 },
+          "Sài Gòn Xanh 330ml": { "unit": "Lon", "cat": "Beer", "initTong": 0, "initBan": 91, "minStock": 240 },
+          "Sting Đỏ": { "unit": "Lon", "cat": "Nước ngọt", "initTong": 560, "initBan": 1119, "minStock": 240 },
+          "Sprite": { "unit": "Lon", "cat": "Nước ngọt", "initTong": 1392, "initBan": 649, "minStock": 240 },
+          "Coca - Cola": { "unit": "Lon", "cat": "Nước ngọt", "initTong": 1896, "initBan": 511, "minStock": 240 },
+          "Suối Dasani": { "unit": "Lon", "cat": "Nước ngọt", "initTong": 0, "initBan": 1074, "minStock": 360 },
+          "Rượu cần 4lít": { "unit": "Bình", "cat": "Rượu", "initTong": 0, "initBan": 14, "minStock": 10 },
+          "Rượu Táo Mèo": { "unit": "Lít", "cat": "Rượu", "initTong": 300, "initBan": 150, "minStock": 200 },
+          "Rượu Mơ": { "unit": "Lít", "cat": "Rượu", "initTong": 260, "initBan": 110, "minStock": 200 },
+          "Than hao - Nướng": { "unit": "Kg", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 },
+          "Cồn thạch": { "unit": "Thùng", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
+          "Khăn ướt - Đoàn": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 1000 },
+          "Tấm setup đoàn - Đoàn": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 1000 },
+          "Bao đũa": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 1000 },
+          "Bao muỗng": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 1000 },
+          "Ống hút rượu cần": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 },
+          "Giấy ăn 100tờ/gói - 100gói/bịch": { "unit": "Gói", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 100 },
+          "Giấy chữ nhật": { "unit": "Gói", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 },
+          "Giấy lau tay": { "unit": "Gói", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 },
+          "Giấy vệ sinh cuộn": { "unit": "Cuộn", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 100 },
+          "Ly giấy 6oz - 50 cái/lốc": { "unit": "Lốc", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
+          "Giấy in bill": { "unit": "Cuộn", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 60 },
+          "Giấy vuông": { "unit": "Bịch", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
+          "Bao tay xé gà": { "unit": "Kg", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
+          "Bịch rác lớn - Đen": { "unit": "Kg", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 50 },
+          "Hộp mang về": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 50 },
+          "Tăm": { "unit": "Lóc", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 },
+          "Chai xịt phòng": { "unit": "Chai", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 5 },
+          "Nước lau kính": { "unit": "Chai", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 5 },
+          "Nước lau sàn": { "unit": "Can", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
+          "Nước rửa chén": { "unit": "Can", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 10 },
+          "Nước rửa tay": { "unit": "Can", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 5 },
+          "Atiso": { "unit": "Bịch", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 5 },
+          "Ống hút đen": { "unit": "Lóc", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 100 },
+          "Hộp giấy ăn": { "unit": "Cái", "cat": "CCDC tiêu hao", "initTong": 0, "initBan": 0, "minStock": 20 }
+        };
 
-        let transactions = JSON.parse(localStorage.getItem('bkl_transactions')) || [
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Rượu Mơ",
-    "qty": 9,
-    "note": "Xuất bán khách hàng",
-    "recordTime": "15:39:02 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Suối Dasani",
-    "qty": 120,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:40:30 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Suối Dasani",
-    "qty": 12,
-    "note": "FOC Cồng Chiêng",
-    "recordTime": "15:40:45 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Tiger Bạc 250ml",
-    "qty": 103,
-    "note": "Xuất bán khách hàng",
-    "recordTime": "15:42:48 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Rượu Táo Mèo",
-    "qty": 7,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:44:08 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Ken Bạc 250ml",
-    "qty": 65,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:44:28 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Coca - Cola",
-    "qty": 46,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:44:43 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Sprite",
-    "qty": 27,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:45:05 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Rượu cần 4lít",
-    "qty": 2,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:45:20 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Sting Đỏ",
-    "qty": 8,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:45:45 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Ken Bạc 250ml",
-    "qty": 158,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:46:28 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Suối Dasani",
-    "qty": 12,
-    "note": "FOC Cồng Chiêng",
-    "recordTime": "15:46:43 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Suối Dasani",
-    "qty": 206,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:46:58 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Rượu Mơ",
-    "qty": 9,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:47:17 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Rượu Táo Mèo",
-    "qty": 6,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:47:31 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Coca - Cola",
-    "qty": 79,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:47:52 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Sài Gòn Xanh 330ml",
-    "qty": 64,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:48:09 1/11/2026"
-  },
-  {
-    "date": "2026-10-30",
-    "type": "xuat_ban",
-    "itemName": "Tiger Bạc 250ml",
-    "qty": 73,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:48:34 1/11/2026"
-  },
-  {
-    "date": "2026-10-31",
-    "type": "xuat_ban",
-    "itemName": "Rượu cần 4lít",
-    "qty": 2,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:49:29 1/11/2026"
-  },
-  {
-    "date": "2026-10-31",
-    "type": "xuat_ban",
-    "itemName": "Sprite",
-    "qty": 35,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:51:26 1/11/2026"
-  },
-  {
-    "date": "2026-10-31",
-    "type": "xuat_ban",
-    "itemName": "Tiger Bạc 330ml",
-    "qty": 10,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:51:46 1/11/2026"
-  },
-  {
-    "date": "2026-10-31",
-    "type": "xuat_ban",
-    "itemName": "Sting Đỏ",
-    "qty": 9,
-    "note": "Xuất bán cho khách",
-    "recordTime": "15:52:04 1/11/2026"
-  },
-  {
-    "date": "2026-10-31",
-    "type": "chuyen_kho",
-    "itemName": "Sprite",
-    "qty": 480,
-    "note": "Xuất kho bán",
-    "recordTime": "15:57:14 1/11/2026"
-  },
-  {
-    "date": "2026-10-31",
-    "type": "chuyen_kho",
-    "itemName": "Coca - Cola",
-    "qty": 480,
-    "note": "Xuất kho bán",
-    "recordTime": "15:57:29 1/11/2026"
-  },
-  {
-    "date": "2026-10-31",
-    "type": "chuyen_kho",
-    "itemName": "Ken Bạc 250ml",
-    "qty": 480,
-    "note": "Xuất kho bán",
-    "recordTime": "15:58:17 1/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Suối Dasani",
-    "qty": 96,
-    "note": "Xuất bán cho khách",
-    "recordTime": "09:15:38 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Suối Dasani",
-    "qty": 12,
-    "note": "FOC Cồng Chiêng",
-    "recordTime": "09:15:57 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Suối Dasani",
-    "qty": 11,
-    "note": "FOC Anh Châu",
-    "recordTime": "09:16:57 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Ken Bạc 250ml",
-    "qty": 155,
-    "note": "FOC Anh Châu",
-    "recordTime": "09:18:09 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Coca - Cola",
-    "qty": 1,
-    "note": "FOC Anh Châu",
-    "recordTime": "09:18:59 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Coca - Cola",
-    "qty": 60,
-    "note": "Xuất bán cho khách",
-    "recordTime": "09:19:25 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Ken Bạc 250ml",
-    "qty": 34,
-    "note": "Xuất bán cho khách",
-    "recordTime": "09:20:34 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Rượu Mơ",
-    "qty": 3,
-    "note": "Xuất bán cho khách",
-    "recordTime": "09:20:55 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Sprite",
-    "qty": 29,
-    "note": "Xuất bán cho khách",
-    "recordTime": "09:21:13 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Rượu Táo Mèo",
-    "qty": 2,
-    "note": "Xuất bán cho khách",
-    "recordTime": "09:21:30 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Sting Đỏ",
-    "qty": 9,
-    "note": "Xuất bán cho khách",
-    "recordTime": "09:21:48 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Tiger Bạc 250ml",
-    "qty": 4,
-    "note": "Xuất bán cho khách",
-    "recordTime": "09:22:05 2/11/2026"
-  },
-  {
-    "date": "2026-11-01",
-    "type": "xuat_ban",
-    "itemName": "Sài Gòn Xanh 330ml",
-    "qty": 1,
-    "note": "Xuất bán cho khách",
-    "recordTime": "09:22:16 2/11/2026"
-  }
-];
+        let transactions = JSON.parse(localStorage.getItem('bkl_transactions')) || [];
 
         // Realtime Clock
         function updateClock() {
@@ -851,26 +295,19 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Init Form Date
         document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
 
-        // Tab Switching Logic
         function switchTab(tabId) {
             ['tonkho', 'giaodich', 'sanpham', 'lichsu', 'sauluu'].forEach(t => {
                 document.getElementById(`sec-${t}`).classList.add('hidden');
-                
                 let dtBtn = document.getElementById(`dt-tab-${t}`);
                 if (dtBtn) dtBtn.className = "py-3 px-2 text-slate-600 hover:text-blue-600";
-
                 let mbBtn = document.getElementById(`mb-tab-${t}`);
                 if (mbBtn) mbBtn.className = "flex flex-col items-center text-xs text-slate-500";
             });
-
             document.getElementById(`sec-${tabId}`).classList.remove('hidden');
-            
             let activeDt = document.getElementById(`dt-tab-${tabId}`);
             if (activeDt) activeDt.className = "py-3 px-2 active-tab";
-
             let activeMb = document.getElementById(`mb-tab-${tabId}`);
             if (activeMb) activeMb.className = "flex flex-col items-center active-nav text-xs";
 
@@ -880,10 +317,8 @@
             if (tabId === 'lichsu') renderHistory();
         }
 
-        // Calculate Stocks
         function getStockData() {
             let stockMap = {};
-
             for (let name in items) {
                 stockMap[name] = {
                     unit: items[name].unit,
@@ -897,7 +332,6 @@
                     xuatBan: 0
                 };
             }
-
             transactions.forEach(tx => {
                 if (stockMap[tx.itemName]) {
                     let qty = parseInt(tx.qty);
@@ -909,18 +343,15 @@
                     if (tx.type === 'xuat_ban') stockMap[tx.itemName].xuatBan += qty;
                 }
             });
-
             return stockMap;
         }
 
-        // Render Stock Cards
         function renderStock() {
             const stockData = getStockData();
             const container = document.getElementById('stockContainer');
             const filterCat = document.getElementById('filterCategory').value;
             container.innerHTML = '';
 
-            // Update Categories Filter
             const catSet = new Set(Object.values(items).map(i => i.cat));
             const selectCat = document.getElementById('filterCategory');
             selectCat.innerHTML = '<option value="ALL">Tất cả nhóm</option>';
@@ -937,7 +368,6 @@
 
                 let isTongLow = tonTong <= item.minStock;
                 let isBanLow = tonBan <= item.minStock;
-
                 let cardBg = "bg-white border-slate-200";
                 let badge = "";
 
@@ -960,7 +390,6 @@
                             </div>
                             <div class="flex flex-col gap-1 items-end">${badge}</div>
                         </div>
-
                         <div class="grid grid-cols-2 gap-2 text-center text-xs pt-2 border-t border-slate-100">
                             <div class="bg-orange-50/80 p-2 rounded-lg border border-orange-100">
                                 <span class="text-[10px] font-bold text-orange-700 block">KHO TỔNG</span>
@@ -978,7 +407,6 @@
             }
         }
 
-        // Render Select Item in Transaction Form
         function renderTransSelect() {
             const select = document.getElementById('transItem');
             select.innerHTML = '';
@@ -987,7 +415,9 @@
             }
         }
 
-        // Handle Add Transaction
+        // =========================================================================
+        // HÀM XỬ LÝ GIAO DỊCH (ĐÃ TÍCH HỢP FETCH ĐẨY VỀ GOOGLE SHEETS)
+        // =========================================================================
         function handleTransaction(e) {
             e.preventDefault();
             const date = document.getElementById('transDate').value;
@@ -1010,17 +440,27 @@
                 return;
             }
 
+            // URL Ứng dụng web Google Apps Script của bạn
+            const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxcSApW9f-uUIIEkgQpbMCSRy2Vnmv7MrvKcNaHp8W_9narhCgRXgROJnbcBpdMWI38wA/exec';
+
+            // Lệnh fetch đẩy dữ liệu thẳng về Google Sheets
+            fetch(URL_APPS_SCRIPT, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ date, type, itemName, qty, note })
+            }).catch(error => console.error('Lỗi đẩy dữ liệu Sheets:', error));
+
+            // Lưu lịch sử giao dịch vào LocalStorage
             const recordTime = new Date().toLocaleString('vi-VN');
             transactions.push({ date, type, itemName, qty, note, recordTime });
             localStorage.setItem('bkl_transactions', JSON.stringify(transactions));
 
-            alert('Đã ghi nhận giao dịch thành công!');
+            alert('Đã ghi nhận giao dịch thành công và đồng bộ trực tuyến!');
             document.getElementById('transQty').value = '1';
             document.getElementById('transNote').value = '';
             switchTab('tonkho');
         }
 
-        // Item Management Form
         function handleSaveItem(e) {
             e.preventDefault();
             const name = document.getElementById('itemName').value.trim();
@@ -1032,7 +472,6 @@
 
             items[name] = { unit, cat, initTong, initBan, minStock };
             localStorage.setItem('bkl_items', JSON.stringify(items));
-
             resetItemForm();
             renderItemList();
             alert('Đã lưu thông tin mặt hàng!');
@@ -1086,17 +525,14 @@
             }
         }
 
-        // Render History
         function renderHistory() {
             const body = document.getElementById('historyBody');
             const filterM = document.getElementById('filterMonth').value;
             body.innerHTML = '';
-
             let filtered = [...transactions].reverse();
             if (filterM) {
                 filtered = filtered.filter(tx => tx.date.startsWith(filterM));
             }
-
             filtered.forEach(tx => {
                 let badge = '';
                 if (tx.type === 'nhap_tong') badge = '<span class="bg-orange-100 text-orange-800 text-[10px] px-2 py-0.5 rounded font-bold">Nhập Kho Tổng</span>';
@@ -1124,7 +560,6 @@
             }
         }
 
-        // Export/Import JSON
         function exportJSON() {
             const backupData = { items, transactions };
             const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
@@ -1138,7 +573,6 @@
         function importJSON(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
@@ -1160,28 +594,16 @@
             reader.readAsText(file);
         }
 
-        
-        // Save Self Contained HTML
         function saveSelfContainedHTML() {
             try {
-                let currentItems = items;
-                let currentTransactions = transactions;
-                
                 let htmlCode = document.documentElement.outerHTML;
-
-                // Regex replacement for items and transactions
                 const itemsRegex = /let items = JSON\.parse\(localStorage\.getItem\('bkl_items'\)\) \|\| \{[\s\S]*?\};/;
-                const newItemsStr = `let items = JSON.parse(localStorage.getItem('bkl_items')) || ${JSON.stringify(currentItems, null, 2)};`;
-                
+                const newItemsStr = `let items = JSON.parse(localStorage.getItem('bkl_items')) || ${JSON.stringify(items, null, 2)};`;
                 const transRegex = /let transactions = JSON\.parse\(localStorage\.getItem\('bkl_transactions'\)\) \|\| \[\];/;
-                const newTransStr = `let transactions = JSON.parse(localStorage.getItem('bkl_transactions')) || ${JSON.stringify(currentTransactions, null, 2)};`;
+                const newTransStr = `let transactions = JSON.parse(localStorage.getItem('bkl_transactions')) || ${JSON.stringify(transactions, null, 2)};`;
 
-                if (itemsRegex.test(htmlCode)) {
-                    htmlCode = htmlCode.replace(itemsRegex, newItemsStr);
-                }
-                if (transRegex.test(htmlCode)) {
-                    htmlCode = htmlCode.replace(transRegex, newTransStr);
-                }
+                if (itemsRegex.test(htmlCode)) htmlCode = htmlCode.replace(itemsRegex, newItemsStr);
+                if (transRegex.test(htmlCode)) htmlCode = htmlCode.replace(transRegex, newTransStr);
 
                 const blob = new Blob([htmlCode], { type: 'text/html;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
@@ -1192,12 +614,10 @@
                 URL.revokeObjectURL(url);
                 alert('Đã lưu dữ liệu hiện tại trực tiếp vào file HTML thành công!');
             } catch (err) {
-                console.error(err);
                 alert('Lỗi khi lưu file HTML!');
             }
         }
 
-        // Initial Load
         renderStock();
     </script>
 </body>
