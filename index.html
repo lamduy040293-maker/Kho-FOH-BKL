@@ -327,8 +327,8 @@
 </div>
 
 <script>
-    // Đã cấu hình chính xác link Web App Google Apps Script của Ken:
-    const API_URL = "https://script.google.com/macros/s/AKfycbwRA844NoJGsvI4rSZVLGEJv4f55uzGjfO5m9NZpJlnobdzBHu2u_ZA-NDjoOB2LBI/exec";
+    // Link Web App Google Apps Script mới nhất của Ken:
+    const API_URL = "https://script.google.com/macros/s/AKfycbzusCvmWLAg70tu7KqClzbPYNIjuh5OVSnaNSGHyLGqtF6cosMUB_xnVTIJH8PYa3hY/exec";
 
     let items = {};
     let transactions = [];
@@ -384,11 +384,9 @@
 
     function switchTab(tabId) {
         ['tonkho', 'giaodich', 'sanpham', 'lichsu'].forEach(t => {
-            document.getElementById(`sec-${t}`).style.display = 'none';
-            document.getElementById(`tab-${t}`).classList.remove('active');
+            document.getElementById(`sec-${t}`).style.display = 'none'; document.getElementById(`tab-${t}`).classList.remove('active');
         });
-        document.getElementById(`sec-${tabId}`).style.display = 'block';
-        document.getElementById(`tab-${tabId}`).classList.add('active');
+        document.getElementById(`sec-${tabId}`).style.display = 'block'; document.getElementById(`tab-${tabId}`).classList.add('active');
         if (tabId === 'tonkho') renderStock();
         if (tabId === 'giaodich') renderTransSelect();
         if (tabId === 'sanpham') renderItemList();
@@ -440,7 +438,7 @@
 
             stockBody.innerHTML += `<tr class="${rowClass}">
                 <td>${stt++}</td>
-                <td style="text-align: left; font-weight: 600;">${name} ${warningText}</td>
+                <td style="text-align: left; font-weight: 600;">${name}${warningText}</td>
                 <td>${item.unit}</td>
                 <td><span style="font-size: 11px; background: #eee; padding: 2px 5px; border-radius: 3px;">${item.cat}</span></td>
                 <td>${item.minStock}</td>
@@ -472,47 +470,7 @@
         let currentBan = stockData.initBan + stockData.nhanBan - stockData.xuatBan;
 
         if (type === 'chuyen_kho' && qty > currentTong) { alert(`Kho tổng không đủ hàng! Tồn hiện tại: ${currentTong}`); return; }
-        if (type === 'xuat_ban' && qty > currentBan) { alert(`Kho bán không đủ hàng! Tồn hiện tại: ${currentBan}`); return; }
-
-        const recordTime = new Date().toLocaleString('vi-VN');
-        transactions.push({ date, type, itemName, qty, note, recordTime });
-        
-        saveToCloud();
-        alert('Giao dịch thành công và đã đồng bộ lên Google Sheets!');
-        document.getElementById('transQty').value = '1';
-        document.getElementById('transNote').value = '';
-        switchTab('tonkho');
-    }
-
-    function handleSaveItem(e) {
-        e.preventDefault();
-        const name = document.getElementById('itemName').value.trim();
-        const unit = document.getElementById('itemUnit').value.trim();
-        const cat = document.getElementById('itemCat').value.trim();
-        const initTong = parseInt(document.getElementById('initStockTong').value) || 0;
-        const initBan = parseInt(document.getElementById('initStockBan').value) || 0;
-        const minStock = parseInt(document.getElementById('itemMinStock').value) || 0;
-        
-        items[name] = { unit, cat, initTong, initBan, minStock };
-        saveToCloud();
-        resetItemForm();
-        renderItemList();
-        alert('Lưu mặt hàng thành công và đã đồng bộ!');
-    }
-
-    function editItem(name) {
-        const item = items[name];
-        document.getElementById('itemName').value = name;
-        document.getElementById('itemUnit').value = item.unit;
-        document.getElementById('itemCat').value = item.cat;
-        document.getElementById('initStockTong').value = item.initTong || 0;
-        document.getElementById('initStockBan').value = item.initBan || 0;
-        document.getElementById('itemMinStock').value = item.minStock;
-        document.getElementById('btnSaveItem').innerText = 'Cập Nhật Mặt Hàng';
-    }
-
-    function deleteItem(name) {
-        if (confirm(`Bạn có chắc chắn muốn xóa mặt hàng "${name}"?`)) {
+        if (type === 'xuat_ban' && qty > currentBan) { alert(`Kho bán không đủ hàng! Tồn hiện tại: ${currentBan}`); return; }  const recordTime = new Date().toLocaleString('vi-VN'); transactions.push({ date, type, itemName, qty, note, recordTime });  saveToCloud(); alert('Giao dịch thành công và đã đồng bộ lên Google Sheets!'); document.getElementById('transQty').value = '1'; document.getElementById('transNote').value = ''; switchTab('tonkho'); }  function handleSaveItem(e) { e.preventDefault(); const name = document.getElementById('itemName').value.trim(); const unit = document.getElementById('itemUnit').value.trim(); const cat = document.getElementById('itemCat').value.trim(); const initTong = parseInt(document.getElementById('initStockTong').value) \vert{}\vert{} 0; const initBan = parseInt(document.getElementById('initStockBan').value) \vert{}\vert{} 0; const minStock = parseInt(document.getElementById('itemMinStock').value) \vert{}\vert{} 0;  items[name] = { unit, cat, initTong, initBan, minStock }; saveToCloud(); resetItemForm(); renderItemList(); alert('Lưu mặt hàng thành công và đã đồng bộ!'); }  function editItem(name) { const item = items[name]; document.getElementById('itemName').value = name; document.getElementById('itemUnit').value = item.unit; document.getElementById('itemCat').value = item.cat; document.getElementById('initStockTong').value = item.initTong \vert{}\vert{} 0; document.getElementById('initStockBan').value = item.initBan \vert{}\vert{} 0; document.getElementById('itemMinStock').value = item.minStock; document.getElementById('btnSaveItem').innerText = 'Cập Nhật Mặt Hàng'; }  function deleteItem(name) { if (confirm(`Bạn có chắc chắn muốn xóa mặt hàng "${name}"?`)) {
             delete items[name];
             saveToCloud();
             renderItemList();
@@ -561,20 +519,3 @@
             body.innerHTML += `<tr>
                 <td>${tx.date}</td>
                 <td>${typeLabel}</td>
-                <td style="text-align: left; font-weight: bold;">${tx.itemName}</td>
-                <td style="font-weight: bold;">${tx.qty}</td>
-                <td style="text-align: left;">${tx.note || '-'}</td>
-                <td style="font-size: 11px; color: #7f8c8d;">${tx.recordTime}</td>
-            </tr>`;
-        });
-    }
-
-    function clearHistory() {
-        if (confirm('Xóa toàn bộ lịch sử giao dịch?')) {
-            transactions = [];
-            saveToCloud();
-            renderHistory();
-        }
-    }
-
-    // Tự động tải
