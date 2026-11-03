@@ -28,7 +28,7 @@
                     <div id="clockTime" class="text-lg font-mono font-bold text-emerald-400">00:00:00</div>
                     <div id="clockDate" class="text-xs text-slate-400">01/01/2026</div>
                 </div>
-                <button onclick="fetchCloudData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition-all" title="Tải lại dữ liệu mới nhất">
+                <button onclick="fetchCloudData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition-all" title="Tải lại dữ liệu ngay lập tức">
                     <i class="fa-solid fa-rotate"></i>
                 </button>
             </div>
@@ -223,7 +223,6 @@
         // Link Apps Script Web App mới nhất của Ken
         const API_URL = "https://script.google.com/macros/s/AKfycbyvY3J-koO6bYzi709TilzBiMRXowzTYSmWr1dSbIu6YoJPnwprXl_bY5xsf5nIScd5kw/exec";
 
-        // Dữ liệu danh mục ban đầu trích xuất trực tiếp từ Google Sheet
         let defaultItems = {
           "Tiger Bạc 250ml": { "unit": "Lon", "cat": "Beer", "initTong": 960, "initBan": 758, "minStock": 240 },
           "Ken Bạc 250ml": { "unit": "Lon", "cat": "Beer", "initTong": 672, "initBan": 616, "minStock": 480 },
@@ -267,8 +266,9 @@
 
         let items = defaultItems;
         let transactions = [];
+        let isFetching = false;
 
-        // Realtime Clock
+        // Đồng hồ thời gian thực
         function updateClock() {
             const now = new Date();
             document.getElementById('clockTime').innerText = now.toLocaleTimeString('vi-VN');
@@ -279,11 +279,12 @@
 
         document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
 
-        // Tải dữ liệu từ Google Sheets (Cloud) về
+        // Tải dữ liệu từ Cloud (Có cờ isFetching để tránh gửi trùng lặp request)
         function fetchCloudData() {
+            if (isFetching) return;
+            isFetching = true;
+
             const statusEl = document.getElementById('syncStatus');
-            statusEl.innerText = "⏳ Đang đồng bộ dữ liệu...";
-            statusEl.className = "text-xs text-amber-400 font-semibold";
 
             fetch(API_URL)
                 .then(res => res.json())
@@ -295,21 +296,24 @@
                         items = defaultItems;
                     }
                     renderStock();
-                    statusEl.innerText = "🟢 Đã đồng bộ Online";
+                    statusEl.innerText = "🟢 Đã đồng bộ Online (Tự động 5s)";
                     statusEl.className = "text-xs text-emerald-400 font-semibold";
                 })
                 .catch(err => {
                     console.error("Lỗi tải Cloud:", err);
                     renderStock();
-                    statusEl.innerText = "🟢 Đã đồng bộ Online";
-                    statusEl.className = "text-xs text-emerald-400 font-semibold";
+                    statusEl.innerText = "🔴 Lỗi kết nối Cloud (Đang thử lại...)";
+                    statusEl.className = "text-xs text-rose-400 font-semibold";
+                })
+                .finally(() => {
+                    isFetching = false;
                 });
         }
 
-        // Lưu toàn bộ dữ liệu lên Google Sheets (Cloud)
+        // Lưu dữ liệu lên Cloud
         function saveToCloud() {
             const statusEl = document.getElementById('syncStatus');
-            statusEl.innerText = "⏳ Đang lưu dữ liệu lên Sheets...";
+            statusEl.innerText = "⏳ Đang lưu dữ liệu...";
             statusEl.className = "text-xs text-amber-400 font-semibold";
 
             fetch(API_URL, {
@@ -318,8 +322,9 @@
             })
             .then(res => res.json())
             .then(res => {
-                statusEl.innerText = "🟢 Đã đồng bộ Online";
+                statusEl.innerText = "🟢 Đã đồng bộ Online (Tự động 5s)";
                 statusEl.className = "text-xs text-emerald-400 font-semibold";
+                fetchCloudData(); // Tải lại ngay lập tức sau khi lưu
             })
             .catch(err => {
                 console.error("Lỗi lưu Cloud:", err);
@@ -473,7 +478,6 @@
             const recordTime = new Date().toLocaleString('vi-VN');
             transactions.push({ date, type, itemName, qty, note, recordTime });
             
-            // Lưu lên Google Sheets và đồng bộ cho mọi máy
             saveToCloud();
 
             alert('Đã ghi nhận giao dịch và đồng bộ lên Google Sheets!');
@@ -569,8 +573,11 @@
             }
         }
 
-        // Tự động tải dữ liệu từ Google Sheets ngay khi mở trang
+        // Tải dữ liệu lần đầu ngay khi mở trang
         fetchCloudData();
+
+        // TỰ ĐỘNG CẬP NHẬT NGẦM MỖI 5 GIÂY CHO TẤT CẢ CÁC MÁY / ĐIỆN THOẠI
+        setInterval(fetchCloudData, 5000);
     </script>
 </body>
 </html>
