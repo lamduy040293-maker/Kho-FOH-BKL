@@ -220,7 +220,6 @@
     </nav>
 
     <script>
-        // Cấu hình GitHub Repository & Token
         const GH_USER = "lamduy040293-maker";
         const GH_REPO = "Kho-FOH-BKL";
         const GH_FILE = "data.json";
@@ -272,7 +271,6 @@
         let fileSha = null;
         let isFetching = false;
 
-        // Đồng hồ thời gian thực
         function updateClock() {
             const now = new Date();
             document.getElementById('clockTime').innerText = now.toLocaleTimeString('vi-VN');
@@ -283,33 +281,37 @@
 
         document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
 
-        // Tải dữ liệu trực tiếp từ file data.json trên GitHub
+        // Tải dữ liệu chống cache bằng tham số thời gian t=...
         function fetchGitHubData() {
             if (isFetching) return;
             isFetching = true;
             const statusEl = document.getElementById('syncStatus');
 
-            const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}`;
+            const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}?t=${new Date().getTime()}`;
             fetch(url, {
-                headers: { "Authorization": `token ${GH_TOKEN}` }
+                headers: { 
+                    "Authorization": `token ${GH_TOKEN}`,
+                    "Accept": "application/vnd.github.v3+json",
+                    "Cache-Control": "no-cache"
+                }
             })
             .then(res => {
-                if (!res.ok) throw new Error("Chưa có file data.json trên GitHub");
+                if (!res.ok) throw new Error("Chưa có file data.json");
                 return res.json();
             })
             .then(fileData => {
                 fileSha = fileData.sha;
                 const content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
-                if (content && content.items) {
+                if (content && content.items && Object.keys(content.items).length > 0) {
                     items = content.items;
                     transactions = content.transactions || [];
                 }
                 renderStock();
-                statusEl.innerText = "🟢 Đồng bộ GitHub (Tự động 5s)";
+                statusEl.innerText = "🟢 Đồng bộ GitHub (Realtime)";
                 statusEl.className = "text-xs text-emerald-400 font-semibold";
             })
             .catch(err => {
-                console.log("Khởi tạo file data.json mới trên GitHub...");
+                console.log("Sử dụng danh mục mặc định...");
                 renderStock();
                 statusEl.innerText = "🟢 Đã sẵn sàng";
                 statusEl.className = "text-xs text-emerald-400 font-semibold";
@@ -319,7 +321,7 @@
             });
         }
 
-        // Lưu dữ liệu đẩy trực tiếp lên GitHub
+        // Lưu dữ liệu đẩy lên GitHub
         function saveToGitHub() {
             const statusEl = document.getElementById('syncStatus');
             statusEl.innerText = "⏳ Đang đẩy lên GitHub...";
@@ -348,7 +350,7 @@
                 if (res.content && res.content.sha) {
                     fileSha = res.content.sha;
                 }
-                statusEl.innerText = "🟢 Đồng bộ GitHub thành công";
+                statusEl.innerText = "🟢 Đã đồng bộ thành công";
                 statusEl.className = "text-xs text-emerald-400 font-semibold";
                 fetchGitHubData();
             })
@@ -602,7 +604,7 @@
         // Tải dữ liệu từ GitHub khi mở trang
         fetchGitHubData();
 
-        // Tự động quét ngầm mỗi 5 giây giữa các thiết bị
+        // Tự động quét ngầm mỗi 5 giây chống cache tuyệt đối
         setInterval(fetchGitHubData, 5000);
     </script>
 </body>
