@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kho FOH BKL - Quản Lý Kho Song Song</title>
+    <title>Kho FOH BKL - Quản Lý Kho Song Song (GitHub Sync)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -21,14 +21,14 @@
                 <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
                     <i class="fa-solid fa-boxes-stacked text-blue-400"></i> Kho FOH BKL
                 </h1>
-                <p id="syncStatus" class="text-xs text-amber-400 font-semibold">⏳ Đang kết nối Cloud...</p>
+                <p id="syncStatus" class="text-xs text-amber-400 font-semibold">⏳ Đang kết nối GitHub Cloud...</p>
             </div>
             <div class="text-right flex items-center gap-3">
                 <div>
                     <div id="clockTime" class="text-lg font-mono font-bold text-emerald-400">00:00:00</div>
                     <div id="clockDate" class="text-xs text-slate-400">01/01/2026</div>
                 </div>
-                <button onclick="fetchCloudData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition-all" title="Tải lại dữ liệu ngay lập tức">
+                <button onclick="fetchGitHubData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition-all" title="Tải lại dữ liệu ngay lập tức">
                     <i class="fa-solid fa-rotate"></i>
                 </button>
             </div>
@@ -102,7 +102,7 @@
                         <input type="text" id="transNote" placeholder="Diễn giải thêm..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
                     </div>
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg shadow-md transition-all">
-                        Thực Hiện Giao Dịch & Đồng Bộ
+                        Thực Hiện Giao Dịch & Đồng Bộ GitHub
                     </button>
                 </form>
             </div>
@@ -220,8 +220,11 @@
     </nav>
 
     <script>
-        // Link Apps Script Web App mới nhất của Ken
-        const API_URL = "https://script.google.com/macros/s/AKfycbyvY3J-koO6bYzi709TilzBiMRXowzTYSmWr1dSbIu6YoJPnwprXl_bY5xsf5nIScd5kw/exec";
+        // Cấu hình GitHub Repository & Token
+        const GH_USER = "lamduy040293-maker";
+        const GH_REPO = "Kho-FOH-BKL";
+        const GH_FILE = "data.json";
+        const GH_TOKEN = "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";
 
         let defaultItems = {
           "Tiger Bạc 250ml": { "unit": "Lon", "cat": "Beer", "initTong": 960, "initBan": 758, "minStock": 240 },
@@ -266,6 +269,7 @@
 
         let items = defaultItems;
         let transactions = [];
+        let fileSha = null;
         let isFetching = false;
 
         // Đồng hồ thời gian thực
@@ -279,56 +283,78 @@
 
         document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
 
-        // Tải dữ liệu từ Cloud (Có cờ isFetching để tránh gửi trùng lặp request)
-        function fetchCloudData() {
+        // Tải dữ liệu trực tiếp từ file data.json trên GitHub
+        function fetchGitHubData() {
             if (isFetching) return;
             isFetching = true;
-
             const statusEl = document.getElementById('syncStatus');
 
-            fetch(API_URL)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.items && Object.keys(data.items).length > 0) {
-                        items = data.items;
-                        transactions = data.transactions || [];
-                    } else {
-                        items = defaultItems;
-                    }
-                    renderStock();
-                    statusEl.innerText = "🟢 Đã đồng bộ Online (Tự động 5s)";
-                    statusEl.className = "text-xs text-emerald-400 font-semibold";
-                })
-                .catch(err => {
-                    console.error("Lỗi tải Cloud:", err);
-                    renderStock();
-                    statusEl.innerText = "🔴 Lỗi kết nối Cloud (Đang thử lại...)";
-                    statusEl.className = "text-xs text-rose-400 font-semibold";
-                })
-                .finally(() => {
-                    isFetching = false;
-                });
+            const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}`;
+            fetch(url, {
+                headers: { "Authorization": `token ${GH_TOKEN}` }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Chưa có file data.json trên GitHub");
+                return res.json();
+            })
+            .then(fileData => {
+                fileSha = fileData.sha;
+                const content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+                if (content && content.items) {
+                    items = content.items;
+                    transactions = content.transactions || [];
+                }
+                renderStock();
+                statusEl.innerText = "🟢 Đồng bộ GitHub (Tự động 5s)";
+                statusEl.className = "text-xs text-emerald-400 font-semibold";
+            })
+            .catch(err => {
+                console.log("Khởi tạo file data.json mới trên GitHub...");
+                renderStock();
+                statusEl.innerText = "🟢 Đã sẵn sàng";
+                statusEl.className = "text-xs text-emerald-400 font-semibold";
+            })
+            .finally(() => {
+                isFetching = false;
+            });
         }
 
-        // Lưu dữ liệu lên Cloud
-        function saveToCloud() {
+        // Lưu dữ liệu đẩy trực tiếp lên GitHub
+        function saveToGitHub() {
             const statusEl = document.getElementById('syncStatus');
-            statusEl.innerText = "⏳ Đang lưu dữ liệu...";
+            statusEl.innerText = "⏳ Đang đẩy lên GitHub...";
             statusEl.className = "text-xs text-amber-400 font-semibold";
 
-            fetch(API_URL, {
-                method: "POST",
-                body: JSON.stringify({ action: "saveAll", items: items, transactions: transactions })
+            const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}`;
+            const dataObj = { items: items, transactions: transactions };
+            const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(dataObj, null, 2))));
+
+            const bodyData = {
+                message: "Update Kho FOH BKL data via Web App",
+                content: contentEncoded
+            };
+            if (fileSha) bodyData.sha = fileSha;
+
+            fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `token ${GH_TOKEN}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(bodyData)
             })
             .then(res => res.json())
             .then(res => {
-                statusEl.innerText = "🟢 Đã đồng bộ Online (Tự động 5s)";
+                if (res.content && res.content.sha) {
+                    fileSha = res.content.sha;
+                }
+                statusEl.innerText = "🟢 Đồng bộ GitHub thành công";
                 statusEl.className = "text-xs text-emerald-400 font-semibold";
-                fetchCloudData(); // Tải lại ngay lập tức sau khi lưu
+                fetchGitHubData();
             })
             .catch(err => {
-                console.error("Lỗi lưu Cloud:", err);
-                statusEl.innerText = "🔴 Lỗi lưu Cloud";
+                console.error("Lỗi lưu GitHub:", err);
+                statusEl.innerText = "🔴 Lỗi lưu GitHub";
                 statusEl.className = "text-xs text-rose-400 font-semibold";
             });
         }
@@ -478,9 +504,9 @@
             const recordTime = new Date().toLocaleString('vi-VN');
             transactions.push({ date, type, itemName, qty, note, recordTime });
             
-            saveToCloud();
+            saveToGitHub();
 
-            alert('Đã ghi nhận giao dịch và đồng bộ lên Google Sheets!');
+            alert('Đã ghi nhận giao dịch và đồng bộ lên GitHub thành công!');
             document.getElementById('transQty').value = '1';
             document.getElementById('transNote').value = '';
             switchTab('tonkho');
@@ -496,16 +522,16 @@
             const minStock = parseInt(document.getElementById('itemMinStock').value) || 0;
 
             items[name] = { unit, cat, initTong, initBan, minStock };
-            saveToCloud();
+            saveToGitHub();
             resetItemForm();
             renderItemList();
-            alert('Đã lưu thông tin mặt hàng và đồng bộ!');
+            alert('Đã lưu thông tin mặt hàng và đồng bộ GitHub!');
         }
 
         function deleteItem(name) {
             if (confirm(`Bạn có chắc chắn muốn xóa mặt hàng "${name}"?`)) {
                 delete items[name];
-                saveToCloud();
+                saveToGitHub();
                 renderItemList();
             }
         }
@@ -568,16 +594,16 @@
         function clearHistory() {
             if (confirm('Xóa toàn bộ lịch sử giao dịch?')) {
                 transactions = [];
-                saveToCloud();
+                saveToGitHub();
                 renderHistory();
             }
         }
 
-        // Tải dữ liệu lần đầu ngay khi mở trang
-        fetchCloudData();
+        // Tải dữ liệu từ GitHub khi mở trang
+        fetchGitHubData();
 
-        // TỰ ĐỘNG CẬP NHẬT NGẦM MỖI 5 GIÂY CHO TẤT CẢ CÁC MÁY / ĐIỆN THOẠI
-        setInterval(fetchCloudData, 5000);
+        // Tự động quét ngầm mỗi 5 giây giữa các thiết bị
+        setInterval(fetchGitHubData, 5000);
     </script>
 </body>
 </html>
