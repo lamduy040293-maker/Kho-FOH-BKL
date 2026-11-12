@@ -28,7 +28,7 @@
                     <div id="clockTime" class="text-lg font-mono font-bold text-emerald-400">00:00:00</div>
                     <div id="clockDate" class="text-xs text-slate-400">01/01/2026</div>
                 </div>
-                <button onclick="fetchCloudData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition-all" title="Tải lại dữ liệu ngay lập tức">
+                <button onclick="fetchCloudData(true)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition-all" title="Tải lại dữ liệu ngay lập tức">
                     <i class="fa-solid fa-rotate"></i>
                 </button>
             </div>
@@ -101,7 +101,7 @@
                         <label class="block text-xs font-bold text-slate-600 mb-1">Ghi Chú</label>
                         <input type="text" id="transNote" placeholder="Diễn giải thêm..." class="w-full border border-slate-300 rounded-lg p-2 text-sm">
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg shadow-md transition-all">
+                    <button type="submit" id="btnSubmitTrans" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg shadow-md transition-all">
                         Thực Hiện Giao Dịch & Đồng Bộ
                     </button>
                 </form>
@@ -220,8 +220,7 @@
     </nav>
 
     <script>
-        // Link Apps Script Web App mới nhất của Ken
-        const API_URL = "https://script.google.com/macros/s/AKfycbxYqNk4eAJK5mQx_fZw7EoJ6dPdWsN128Auxr5reCzuilfZn53E5MAr9Fp96D_wa_sIDA/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycby7Bjg_1E6JNHs_OmJ7mD77OAyd3rVXlJJw3iP0KEPI7TAKNaQqMNdY0axyAzh_1nsfrg/exec";
 
         let defaultItems = {
           "Tiger Bạc 250ml": { "unit": "Lon", "cat": "Beer", "initTong": 960, "initBan": 758, "minStock": 240 },
@@ -266,7 +265,7 @@
 
         let items = defaultItems;
         let transactions = [];
-        let isFetching = false;
+        let isSyncing = false;
 
         function updateClock() {
             const now = new Date();
@@ -278,55 +277,72 @@
 
         document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
 
-        window.handleCloudResponse = function(data) {
-            if (data && data.items && Object.keys(data.items).length > 0) {
-                items = data.items;
-                transactions = data.transactions || [];
-            } else {
-                items = defaultItems;
+        // Đọc dữ liệu từ Cloud bằng fetch GET chuẩn
+        async function fetchCloudData(manual = false) {
+            if (isSyncing) return;
+            isSyncing = true;
+            const statusEl = document.getElementById('syncStatus');
+            if (manual) {
+                statusEl.innerText = "⏳ Đang đồng bộ...";
+                statusEl.className = "text-xs text-amber-400 font-semibold";
             }
-            renderStock();
-            const statusEl = document.getElementById('syncStatus');
-            statusEl.innerText = "🟢 Đồng bộ Online (Realtime)";
-            statusEl.className = "text-xs text-emerald-400 font-semibold";
-            isFetching = false;
-        };
 
-        function fetchCloudData() {
-            if (isFetching) return;
-            isFetching = true;
-            const statusEl = document.getElementById('syncStatus');
-            statusEl.innerText = "⏳ Đang đồng bộ...";
+            try {
+                const res = await fetch(API_URL + "?t=" + new Date().getTime());
+                const data = await res.json();
+                if (data && data.items && Object.keys(data.items).length > 0) {
+                    items = data.items;
+                    transactions = data.transactions || [];
+                } else {
+                    items = defaultItems;
+                }
+                renderStock();
+                if (!document.getElementById('sec-lichsu').classList.contains('hidden')) renderHistory();
+                if (!document.getElementById('sec-sanpham').classList.contains('hidden')) renderItemList();
 
-            let oldScript = document.getElementById('jsonpScript');
-            if (oldScript) oldScript.remove();
-
-            let script = document.createElement('script');
-            script.id = 'jsonpScript';
-            script.src = API_URL + "?callback=handleCloudResponse&t=" + new Date().getTime();
-            script.onerror = function() {
-                isFetching = false;
+                statusEl.innerText = "🟢 Đồng bộ Online (Realtime)";
+                statusEl.className = "text-xs text-emerald-400 font-semibold";
+            } catch (err) {
+                console.error("Lỗi tải dữ liệu:", err);
                 renderStock();
                 statusEl.innerText = "🔴 Lỗi kết nối Cloud";
                 statusEl.className = "text-xs text-rose-400 font-semibold";
-            };
-            document.body.appendChild(script);
+            } finally {
+                isSyncing = false;
+            }
         }
 
-        function saveToCloud() {
+        // Lưu dữ liệu lên Cloud bằng fetch POST (Không bao giờ bị giới hạn độ dài URL)
+        async function saveToCloud() {
+            isSyncing = true;
             const statusEl = document.getElementById('syncStatus');
-            statusEl.innerText = "⏳ Đang lưu dữ liệu...";
+            statusEl.innerText = "⏳ Đang lưu lên Cloud...";
             statusEl.className = "text-xs text-amber-400 font-semibold";
 
-            let dataStr = encodeURIComponent(JSON.stringify({ items: items, transactions: transactions }));
-            
-            let oldScript = document.getElementById('jsonpSaveScript');
-            if (oldScript) oldScript.remove();
-
-            let script = document.createElement('script');
-            script.id = 'jsonpSaveScript';
-            script.src = API_URL + "?action=save&data=" + dataStr + "&callback=handleCloudResponse&t=" + new Date().getTime();
-            document.body.appendChild(script);
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: "save",
+                        data: { items: items, transactions: transactions }
+                    })
+                });
+                const resData = await response.json();
+                if (resData && resData.status === "success") {
+                    statusEl.innerText = "🟢 Đã lưu & Đồng bộ!";
+                    statusEl.className = "text-xs text-emerald-400 font-semibold";
+                } else {
+                    throw new Error("Server trả về lỗi");
+                }
+            } catch (err) {
+                console.error("Lỗi lưu dữ liệu:", err);
+                statusEl.innerText = "🔴 Lỗi khi lưu lên Cloud!";
+                statusEl.className = "text-xs text-rose-400 font-semibold";
+                alert("Có lỗi xảy ra khi lưu lên Google Sheets, vui lòng kiểm tra lại kết nối!");
+            } finally {
+                isSyncing = false;
+            }
         }
 
         function switchTab(tabId) {
@@ -447,7 +463,7 @@
             }
         }
 
-        function handleTransaction(e) {
+        async function handleTransaction(e) {
             e.preventDefault();
             const date = document.getElementById('transDate').value;
             const type = document.getElementById('transType').value;
@@ -471,18 +487,23 @@
                 return;
             }
 
+            const btn = document.getElementById('btnSubmitTrans');
+            btn.disabled = true;
+            btn.innerText = "⏳ Đang lưu giao dịch...";
+
             const recordTime = new Date().toLocaleString('vi-VN');
             transactions.push({ date, type, itemName, qty, note, recordTime });
             
-            saveToCloud();
+            await saveToCloud();
 
-            alert('Đã ghi nhận giao dịch và đồng bộ thành công!');
+            btn.disabled = false;
+            btn.innerText = "Thực Hiện Giao Dịch & Đồng Bộ";
             document.getElementById('transQty').value = '1';
             document.getElementById('transNote').value = '';
             switchTab('tonkho');
         }
 
-        function handleSaveItem(e) {
+        async function handleSaveItem(e) {
             e.preventDefault();
             const name = document.getElementById('itemName').value.trim();
             const unit = document.getElementById('itemUnit').value.trim();
@@ -492,16 +513,16 @@
             const minStock = parseInt(document.getElementById('itemMinStock').value) || 0;
 
             items[name] = { unit, cat, initTong, initBan, minStock };
-            saveToCloud();
+            await saveToCloud();
             resetItemForm();
             renderItemList();
             alert('Đã lưu thông tin mặt hàng và đồng bộ!');
         }
 
-        function deleteItem(name) {
+        async function deleteItem(name) {
             if (confirm(`Bạn có chắc chắn muốn xóa mặt hàng "${name}"?`)) {
                 delete items[name];
-                saveToCloud();
+                await saveToCloud();
                 renderItemList();
             }
         }
@@ -561,19 +582,17 @@
             });
         }
 
-        function clearHistory() {
+        async function clearHistory() {
             if (confirm('Xóa toàn bộ lịch sử giao dịch?')) {
                 transactions = [];
-                saveToCloud();
+                await saveToCloud();
                 renderHistory();
             }
         }
 
-        // Tải dữ liệu từ Cloud khi mở trang
-        fetchCloudData();
-
-        // Tự động quét ngầm mỗi 5 giây cho mọi thiết bị
-        setInterval(fetchCloudData, 5000);
+        fetchCloudData(true);
+        setInterval(() => fetchCloudData(false), 5000);
     </script>
 </body>
 </html>
+Analyzing
