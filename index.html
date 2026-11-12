@@ -220,7 +220,6 @@
     </nav>
 
     <script>
-        // URL Apps Script mới nhất được cấu hình chuẩn xác
         const API_URL = "https://script.google.com/macros/s/AKfycbzj9XT3XK73GHUZ5990XpS2YorHq1XTtg0TuDsqjLPAUONI1hwp7SpP3fGpsnboQ2xcCA/exec";
 
         let defaultItems = {
@@ -278,7 +277,7 @@
 
         document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
 
-        // Tải toàn bộ dữ liệu từ Google Sheets lên web
+        // Đọc dữ liệu từ Cloud bằng fetch GET chuẩn
         async function fetchCloudData(manual = false) {
             if (isSyncing) return;
             isSyncing = true;
@@ -313,7 +312,7 @@
             }
         }
 
-        // Lưu dữ liệu ngược lên Google Sheets
+        // Lưu dữ liệu lên Cloud bằng fetch POST (Không bao giờ bị giới hạn độ dài URL)
         async function saveToCloud() {
             isSyncing = true;
             const statusEl = document.getElementById('syncStatus');
@@ -591,9 +590,7 @@
             }
         }
 
-        // Tải dữ liệu từ Google Sheets ngay khi mở trang
         fetchCloudData(true);
-        // Quét ngầm cập nhật dữ liệu mỗi 5 giây
         setInterval(() => fetchCloudData(false), 5000);
     </script>
 </body>
