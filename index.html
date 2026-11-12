@@ -220,7 +220,8 @@
     </nav>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycby7Bjg_1E6JNHs_OmJ7mD77OAyd3rVXlJJw3iP0KEPI7TAKNaQqMNdY0axyAzh_1nsfrg/exec";
+        // URL Apps Script mới nhất được cấu hình chuẩn xác
+        const API_URL = "https://script.google.com/macros/s/AKfycbzj9XT3XK73GHUZ5990XpS2YorHq1XTtg0TuDsqjLPAUONI1hwp7SpP3fGpsnboQ2xcCA/exec";
 
         let defaultItems = {
           "Tiger Bạc 250ml": { "unit": "Lon", "cat": "Beer", "initTong": 960, "initBan": 758, "minStock": 240 },
@@ -277,7 +278,7 @@
 
         document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
 
-        // Đọc dữ liệu từ Cloud bằng fetch GET chuẩn
+        // Tải toàn bộ dữ liệu từ Google Sheets lên web
         async function fetchCloudData(manual = false) {
             if (isSyncing) return;
             isSyncing = true;
@@ -312,7 +313,7 @@
             }
         }
 
-        // Lưu dữ liệu lên Cloud bằng fetch POST (Không bao giờ bị giới hạn độ dài URL)
+        // Lưu dữ liệu ngược lên Google Sheets
         async function saveToCloud() {
             isSyncing = true;
             const statusEl = document.getElementById('syncStatus');
@@ -590,9 +591,10 @@
             }
         }
 
+        // Tải dữ liệu từ Google Sheets ngay khi mở trang
         fetchCloudData(true);
+        // Quét ngầm cập nhật dữ liệu mỗi 5 giây
         setInterval(() => fetchCloudData(false), 5000);
     </script>
 </body>
 </html>
-Analyzing
